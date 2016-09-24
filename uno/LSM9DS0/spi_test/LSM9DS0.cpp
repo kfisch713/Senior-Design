@@ -5,8 +5,6 @@
  *  @brief   Library for interfacing with LSM9DS0 over SPI.
  */
 
-#include "Arduino.h"
-#include "SPI.h"
 #include "LSM9DS0.h"
 
 /**
