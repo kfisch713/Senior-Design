@@ -10,7 +10,8 @@
 #include "LSM9DS0.h"
 
 /**
- *  
+ * Constructor for LSM9DS0 object
+ * Sets slave select pin (SC)
  */
 LSM9DS0::LSM9DS0(int sc) {
 	scPin = sc;
@@ -18,9 +19,7 @@ LSM9DS0::LSM9DS0(int sc) {
 }
 
 /**
- *  @brief Gets a single button state of a SNES controller
- *  
- *  @details 
+ * Reads a register via SPI
  */
 byte LSM9DS0::spiRead(byte address) {
 	byte data;
@@ -38,6 +37,9 @@ byte LSM9DS0::spiRead(byte address) {
 	return data;
 }
 
+/**
+ * Writes to a register via SPI
+ */
 void LSM9DS0::spiWrite(byte address, byte data) {
 
 	// Enable data transfer
@@ -50,6 +52,10 @@ void LSM9DS0::spiWrite(byte address, byte data) {
 	digitalWrite(scPin, HIGH);
 }
 
+/**
+ * Writese to appropriate control registers to allow for x-axis accelerometer
+ * data reading
+ */
 void LSM9DS0::accelerometerInit() {
 	/* CTRL_REG0_XM
 	*   7       6       5       4       3       2       1       0
