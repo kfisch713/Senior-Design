@@ -24,6 +24,14 @@ const SPISettings SPISetting = SPISettings(1000000, MSBFIRST, SPI_MODE1);
 // Create an instance of the LSM9DS0
 LSM9DS0 lsm(sc);
 
+byte xData8;
+byte yData8;
+byte zData8;
+
+int xData16 = 0;
+int yData16 = 0;
+int zData16 = 0;
+
 void setup() {
   Serial.begin(9600);
 
@@ -40,7 +48,29 @@ void setup() {
 }
 
 void loop() {
-  Serial.println(lsm.spiRead(OUT_X_L_A), HEX);
+  xData16 = lsm.spiRead(OUT_X_H_A);
+  xData8 = lsm.spiRead(OUT_X_L_A);
+  xData16 << 8;
+  xData16 |= xData8;
+
+  yData16 = lsm.spiRead(OUT_Y_H_A);
+  yData8 = lsm.spiRead(OUT_Y_L_A);
+  yData16 << 8;
+  yData16 |= yData8;
+
+  zData16 = lsm.spiRead(OUT_Z_H_A);
+  zData8 = lsm.spiRead(OUT_Z_L_A);
+  zData16 << 8;
+  zData16 |= zData8;
+  
+  Serial.print("X: ");
+  Serial.print(xData16);
+  Serial.print(" Y: ");
+  Serial.print(yData16);
+  Serial.print(" Z: ");
+  Serial.print(zData16);
+  Serial.print('\n');
+  
   delay(100);
 }
 

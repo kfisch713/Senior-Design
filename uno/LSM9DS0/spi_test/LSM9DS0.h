@@ -14,6 +14,11 @@
 #define READ            0x80
 #define WHO_AM_I_XM     0x0f
 #define OUT_X_L_A       0x28
+#define OUT_X_H_A       0x29
+#define OUT_Y_L_A       0x2A
+#define OUT_Y_H_A       0x2B
+#define OUT_Z_L_A       0x2C
+#define OUT_Z_H_A       0x2D
 #define FIFO_CTRL_REG   0x2E
 #define CTRL_REG0_XM    0x1f
 #define CTRL_REG1_XM    0x20
