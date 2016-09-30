@@ -51,7 +51,7 @@ void LSM9DS0::spiWrite(byte address, byte data) {
 }
 
 /**
- * Writese to appropriate control registers to allow for x-axis accelerometer
+ * Writese to appropriate control registers to allow for all axis acceleration
  * data reading
  */
 void LSM9DS0::accelerometerInit() {
@@ -72,7 +72,7 @@ void LSM9DS0::accelerometerInit() {
 	* Set registers for continuous update
 	* Only enable X-axis measurement
 	*/ 
-	spiWrite(CTRL_REG1_XM, 0b01100001);
+	spiWrite(CTRL_REG1_XM, 0b01100111);
 
 	/* CTRL_REG2_XM
 	*   7       6       5       4       3       2       1       0
