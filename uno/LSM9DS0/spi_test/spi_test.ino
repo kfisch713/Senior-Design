@@ -48,6 +48,10 @@ void setup() {
 }
 
 void loop() {
+  xData16 = 0;
+  yData16 = 0;
+  zData16 = 0;
+  
   xData16 = lsm.spiRead(OUT_X_H_A);
   xData8 = lsm.spiRead(OUT_X_L_A);
   xData16 << 8;
