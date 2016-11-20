@@ -31,10 +31,10 @@ void setup() {
   /* Initialize accelerometer control registers. */
   lsm.init_accelerometer();
   lsm.init_accelerometer_odr(lsm.A_ODR_100);
-  lsm.init_accelerometer_scale(lsm.A_SCALE_2G);
+  lsm.init_accelerometer_scale(lsm.A_SCALE_6G);
 }
 
 void loop() {
-  lsm.read_accelerometer();
+  lsm.print_calculated_accelerometer();
 }
 

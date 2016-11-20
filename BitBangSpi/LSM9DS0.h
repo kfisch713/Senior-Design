@@ -44,7 +44,10 @@ class LSM9DS0{
     void spi_write(byte address, byte data);
 
     /* Reads accelerometer values and prints them raw. */
-    void print_accelerometer();
+    void print_raw_accelerometer();
+
+    /* Reads and calculates accelerometer values and prints them. */
+    void print_calculated_accelerometer();
 
     /* Initialize data transfer registers for accelerometer output. */
     void init_accelerometer();
@@ -84,6 +87,9 @@ class LSM9DS0{
     int MOSI_PIN;
     int MISO_PIN;
     int SCK_PIN;
+
+    a_odr accelerometer_odr;
+    a_scale accelerometer_scale;
 };
 
 #endif

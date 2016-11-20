@@ -121,7 +121,7 @@ void LSM9DS0::spi_write(byte address, byte data)
 /**
  * Read and print raw accelerometer data.
  */
-void LSM9DS0::print_accelerometer()
+void LSM9DS0::print_raw_accelerometer()
 {
   uint8_t temp[6];
 
@@ -140,6 +140,35 @@ void LSM9DS0::print_accelerometer()
   Serial.print(ay);
   Serial.print(" Z: ");
   Serial.println(az);
+}
+
+/**
+ * Read and print raw accelerometer data.
+ */
+void LSM9DS0::print_calculated_accelerometer()
+{
+  uint8_t temp[6];
+  float a_res = accelerometer_scale == A_SCALE_16G ? 16.0 / 32768.0 : (((float) accelerometer_scale + 1.0) * 2.0) / 32768.0;
+  
+  /* Read data from all accelerometer output registers. */
+  spi_read_bytes(OUT_X_L_A, temp, 6);
+
+  /* Store it into various variables. */
+  int ax = (temp[1] << 8) | temp[0];
+  int ay = (temp[3] << 8) | temp[2];
+  int az = (temp[5] << 8) | temp[4];
+
+  float ax_calc = a_res * (float)ax;
+  float ay_calc = a_res * (float)ay;
+  float az_calc = a_res * (float)az;
+
+  /* Print that shit. */
+  Serial.print("X: ");
+  Serial.print(ax_calc, 2);
+  Serial.print(" Y: ");
+  Serial.print(ay_calc, 2);
+  Serial.print(" Z: ");
+  Serial.println(az_calc, 2);
 }
 
 /**************************************************************************************/
@@ -200,6 +229,8 @@ void LSM9DS0::init_accelerometer()
  */
 void LSM9DS0::init_accelerometer_odr(a_odr rate)
 {
+  accelerometer_odr = rate;
+  
   /* Read the current CTRL_REG1_XM value. */
   byte temp = spi_read_byte(CTRL_REG1_XM);
 
@@ -218,6 +249,8 @@ void LSM9DS0::init_accelerometer_odr(a_odr rate)
  */
 void LSM9DS0::init_accelerometer_scale(a_scale scale)
 {
+  accelerometer_scale = scale;
+  
   /* Read the current CTRL_REG2_XM value. */
   byte temp = spi_read_byte(CTRL_REG2_XM);
 
