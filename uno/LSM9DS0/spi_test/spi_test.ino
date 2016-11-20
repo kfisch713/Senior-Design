@@ -38,8 +38,11 @@ void setup() {
   SPI.begin();
   delay(100);
 
+  Serial.print(lsm.spiRead(WHO_AM_I_XM), HEX);
+
   // Set up control registers
   lsm.accelerometerInit();
+
 
   // Enable accelerometer stream and set watermark to 32 samples
   lsm.spiWrite(FIFO_CTRL_REG, 0b00111111);
