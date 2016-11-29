@@ -1,7 +1,7 @@
 #include <asf.h>
 #include "pwm.h"
 
-static void configure_adc(void)
+static void configure_adc_pin3(void)
 {
 	struct adc_config config_adc;
 
@@ -64,7 +64,7 @@ int main(void)
 	system_clock_config(CLOCK_RESOURCE_XO_26_MHZ, CLOCK_FREQ_26_MHZ);
 	uint16_t result;
 	uint16_t result2;
-	configure_adc();
+	configure_adc()_pin3;
 	configure_adc_pin4();
 
 	while (true) {
