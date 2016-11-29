@@ -153,3 +153,62 @@
 	 //printf("flag_cymote_info_update: 5\r\n");
 	 return AT_BLE_FAILURE;
  }
+
+
+ /* Advertisement data set and Advertisement start */
+ at_ble_status_t device_information_advertise(void)
+ {
+	 at_ble_status_t status = AT_BLE_FAILURE;
+	 
+	 if((status = ble_advertisement_data_set()) != AT_BLE_SUCCESS)
+	 {
+		 DBG_LOG("advertisement data set failed reason :%d",status);
+		 return status;
+	 }
+	 
+	 /* Start of advertisement */
+	 if((status = at_ble_adv_start(AT_BLE_ADV_TYPE_UNDIRECTED, AT_BLE_ADV_GEN_DISCOVERABLE, NULL, AT_BLE_ADV_FP_ANY, APP_FAST_ADV, APP_ADV_TIMEOUT, 0)) == AT_BLE_SUCCESS)
+	 {
+		 DBG_LOG("BLE Started Adv");
+		 return AT_BLE_SUCCESS;
+	 }
+	 else
+	 {
+		 DBG_LOG("BLE Adv start Failed status :%d",status);
+	 }
+	 return status;
+ }
+
+ ///* Callback registered for AT_BLE_PAIR_DONE event from stack */
+ //static at_ble_status_t ble_paired_app_event(void *param)
+ //{
+	 //at_ble_pair_done_t *at_ble_pair_done = (at_ble_pair_done_t *)param;
+	 //LED_On(LED0);
+	 ////hw_timer_start(BLE_UPDATE_INTERVAL);
+	 //cymote_connection_handle = at_ble_pair_done->handle;
+	 //return AT_BLE_SUCCESS;
+ //}
+
+ /* Callback registered for AT_BLE_DISCONNECTED event from stack */
+ at_ble_status_t ble_disconnected_app_event(void *param)
+ {
+	 //hw_timer_stop();
+	 //timer_cb_done = false;
+	 LED_Off(LED0);
+	 device_information_advertise();
+	 ALL_UNUSED(param);
+	 return AT_BLE_SUCCESS;
+ }
+
+ /* Callback registered for AT_BLE_CONNECTED event from stack */
+ at_ble_status_t ble_connected_app_event(void *param)
+ {
+	 #if !BLE_PAIR_ENABLE
+	 ble_paired_app_event(param);
+	 #else
+	 ALL_UNUSED(param);
+	 #endif
+	 return AT_BLE_SUCCESS;
+ }
+
+ 

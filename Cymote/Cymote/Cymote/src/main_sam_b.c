@@ -73,7 +73,11 @@ uint8_t dummy_data[] = {'A', 'B', 'C', 'D', 'C', 'E', 'a'};
 static void timer_callback_fn(void)
 {
 	/* Add timer callback functionality here */
-	//Timer was never started
+	dummy_data_2_state = 1;
+
+	//This breaks out of waiting for a BLE event
+	send_plf_int_msg_ind(USER_TIMER_CALLBACK, TIMER_EXPIRED_CALLBACK_TYPE_DETECT, NULL, 0);
+	DBG_LOG("timer callback\r\n");
 }
 
 static void button_cb(void)
@@ -94,61 +98,15 @@ static void button_cb(void)
 
 }
 
-/* BLE Functions that require connection handles */
-
-/* Advertisement data set and Advertisement start */
-static at_ble_status_t device_information_advertise(void)
-{
-	at_ble_status_t status = AT_BLE_FAILURE;
-	
-	if((status = ble_advertisement_data_set()) != AT_BLE_SUCCESS)
-	{
-		DBG_LOG("advertisement data set failed reason :%d",status);
-		return status;
-	}
-	
-	/* Start of advertisement */
-	if((status = at_ble_adv_start(AT_BLE_ADV_TYPE_UNDIRECTED, AT_BLE_ADV_GEN_DISCOVERABLE, NULL, AT_BLE_ADV_FP_ANY, APP_FAST_ADV, APP_ADV_TIMEOUT, 0)) == AT_BLE_SUCCESS)
-	{
-		DBG_LOG("BLE Started Adv");
-		return AT_BLE_SUCCESS;
-	}
-	else
-	{
-		DBG_LOG("BLE Adv start Failed status :%d",status);
-	}
-	return status;
-}
+ /* BLE Functions that require connection handles */
 
 /* Callback registered for AT_BLE_PAIR_DONE event from stack */
-static at_ble_status_t ble_paired_app_event(void *param)
+at_ble_status_t ble_paired_app_event(void *param)
 {
 	at_ble_pair_done_t *at_ble_pair_done = (at_ble_pair_done_t *)param;
 	LED_On(LED0);
-	//hw_timer_start(FIRMWARE_UPDATE_INTERVAL);
+	//hw_timer_start(BLE_UPDATE_INTERVAL);
 	cymote_connection_handle = at_ble_pair_done->handle;
-	return AT_BLE_SUCCESS;
-}
-
-/* Callback registered for AT_BLE_DISCONNECTED event from stack */
-static at_ble_status_t ble_disconnected_app_event(void *param)
-{
-	//hw_timer_stop();
-	//timer_cb_done = false;
-	LED_Off(LED0);
-	device_information_advertise();
-	ALL_UNUSED(param);
-	return AT_BLE_SUCCESS;
-}
-
-/* Callback registered for AT_BLE_CONNECTED event from stack */
-static at_ble_status_t ble_connected_app_event(void *param)
-{
-	#if !BLE_PAIR_ENABLE
-	ble_paired_app_event(param);
-	#else
-	ALL_UNUSED(param);
-	#endif
 	return AT_BLE_SUCCESS;
 }
 
@@ -178,6 +136,8 @@ static const ble_event_callback_t cymote_app_gap_cb[] = {
 //{
 	//at_ble_status_t status;
 	//cymote_info_data newData;
+	//uint16_t result;
+	//uint16_t result2;
 //
     ///* Initialize the SAM system */
 	//
@@ -190,6 +150,8 @@ static const ble_event_callback_t cymote_app_gap_cb[] = {
 	//
 	///* Hardware timer */
 	//hw_timer_init();
+	//hw_timer_register_callback(timer_callback_fn);
+	//hw_timer_start(BLE_UPDATE_INTERVAL);
 	//
 	///* button initialization */
 	//gpio_init();
@@ -197,7 +159,7 @@ static const ble_event_callback_t cymote_app_gap_cb[] = {
 	//button_init();
 	//button_register_callback(button_cb);
 	//
-	//hw_timer_register_callback(timer_callback_fn);
+	//
 //
 	//DBG_LOG("Initializing BLE Application");
 	//
@@ -235,6 +197,10 @@ static const ble_event_callback_t cymote_app_gap_cb[] = {
 	//init_accelerometer_odr(A_ODR_100);
 	//init_accelerometer_scale(A_SCALE_2G);
 //
+	///* Initialize Joystick registers */ 
+	//configure_adc_pin3();
+	//configure_adc_pin4();
+//
     ///* Main working loop */
     //while (1) 
     //{
@@ -261,6 +227,27 @@ static const ble_event_callback_t cymote_app_gap_cb[] = {
 			//newData.data_len = len;
 			//UPDATE_DUMMY_DATA_2(&cymote_service_handler, &newData, cymote_connection_handle);
 		//}
+//
+		////do {
+		////} while (adc_read(ADC_INPUT_CH_GPIO_MS1, &result) == STATUS_BUSY);
+		////do {
+		////} while (adc_read(ADC_INPUT_CH_GPIO_MS2, &result2) == STATUS_BUSY);
+		////
+		//adc_read(ADC_INPUT_CH_GPIO_MS1, &result);
+		//adc_read(ADC_INPUT_CH_GPIO_MS2, &result2);
+//
+		//if (result > 1000)
+		//configure_pwm_from_duty_pin_10(99);
+		//else
+		//configure_pwm_from_duty_pin_10(result / 11);
+		//
+		//if (result2 > 1000)
+		//configure_pwm_from_duty_pin_11(99);
+		//else
+		//configure_pwm_from_duty_pin_11(result2 / 11);
+		//
+		//configure_adc_pin3();
+		//configure_adc_pin4();
 //
 		///* Print accelerometer data */
 		//print_raw_accelerometer();

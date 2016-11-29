@@ -12,12 +12,15 @@
 #include "platform.h"
 #include "at_ble_api.h"
 #include "ble_manager.h"
+#include "timer_hw.h"
 
 /* APP_FAST_ADV between 0x0020 and 0x4000 in 0.625 ms units (20ms to 10.24s). */
 #define APP_FAST_ADV						(1600)
 
 /* APP_ADV_TIMEOUT Advertising time-out between 0x0001 and 0x028F in seconds, 0x0000 disables time-out.*/
 #define APP_ADV_TIMEOUT						(0)
+
+#define BLE_UPDATE_INTERVAL					(2)
 
 /* number of cymote service characteristics. See cymote_characteristic_value_t */
 #define MAX_NUM_CHARACTERISTICS 0x03
@@ -87,6 +90,12 @@ typedef struct{
 void cymote_init_service(cymote_service_handler_t* cymote_service);
 at_ble_status_t cymote_primary_service_define(cymote_service_handler_t *cymote_primary_service);
 at_ble_status_t cymote_info_update(cymote_service_handler_t *cymote_serv , cymote_info_type info_type, cymote_info_data* info_data, at_ble_handle_t conn_handle);
+at_ble_status_t device_information_advertise(void);
+at_ble_status_t ble_paired_app_event(void *param);
+at_ble_status_t ble_disconnected_app_event(void *param);
+at_ble_status_t ble_connected_app_event(void *param);
+
+
 
 
 #endif /* BLE_H_ */
