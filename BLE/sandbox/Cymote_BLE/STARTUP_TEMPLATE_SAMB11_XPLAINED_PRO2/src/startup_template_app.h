@@ -53,7 +53,7 @@
 #define APP_FAST_ADV						(1600)
 
 /** @brief APP_ADV_TIMEOUT Advertising time-out between 0x0001 and 0x028F in seconds, 0x0000 disables time-out.*/
-#define APP_ADV_TIMEOUT						(655)
+#define APP_ADV_TIMEOUT						(0)
 
 at_ble_status_t update_dummy_data(uint8_t value);
 

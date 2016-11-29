@@ -66,26 +66,35 @@
 /* Globals */
 cymote_service_handler_t cymote_service_handler;
 at_ble_handle_t cymote_connection_handle;
-volatile size_t dummy_data_counter;
+uint8_t dummy_data_counter = 0;
+uint8_t dummy_data_counter_old = 0;
+uint8_t dummy_data_2_state = 0;
+uint8_t dummy_data[] = {'A', 'B', 'C', 'D', 'C', 'E', 'a'};
 
 
 /* timer callback function */
 static void timer_callback_fn(void)
 {
 	/* Add timer callback functionality here */
+	//Timer was never started
 }
 
 static void button_cb(void)
 {
-	
-	char dummy_data[] = {'A', 'B', 'C', 'D', 'E'};
-
 	/* Add button callback functionality here */
-	update_dummy_data(dummy_data[dummy_data_counter]);
-	if (dummy_data_counter >= (unsigned int)(sizeof(dummy_data)/sizeof(dummy_data[0])) ){
+	
+	if (dummy_data_counter >= (unsigned int)(sizeof(dummy_data)/sizeof(dummy_data[0])-1) ){
 		dummy_data_counter = 0;
 	}
 	else dummy_data_counter++;
+	
+	dummy_data_2_state = 1;
+	
+	//This breaks out of waiting for a BLE event
+	send_plf_int_msg_ind(USER_TIMER_CALLBACK, TIMER_EXPIRED_CALLBACK_TYPE_DETECT, NULL, 0);
+	
+	printf("Button CB\r\n");
+
 }
 
 /* Advertisement data set and Advertisement start */
@@ -166,17 +175,7 @@ static const ble_event_callback_t cymote_app_gap_cb[] = {
 	NULL
 };
 
-at_ble_status_t update_dummy_data(uint8_t value){
-	cymote_info_type data_type = CYMOTE_DUMMY_DATA;
-	cymote_info_data data;
-	data.data_len = 1;
-	data.info_data = &value;
-	return cymote_info_update(&cymote_service_handler, data_type, &data, cymote_connection_handle);
-}
-
-
 int main(void)
-
 {
 	at_ble_status_t status;
 
@@ -199,7 +198,14 @@ int main(void)
 	DBG_LOG("Initializing BLE Application");
 	
 	/* initialize the BLE chip  and Set the Device Address */
-	ble_device_init(NULL);
+	at_ble_addr_t addr;
+	addr.type = AT_BLE_ADDRESS_PUBLIC;
+	int i;
+	for(i=0; i<AT_BLE_ADDR_LEN; i++){
+		addr.addr[i] = 0;
+	}
+	addr.addr[0]=1;
+	ble_device_init(&addr);
 
 	cymote_init_service(&cymote_service_handler);
 	if ((status = cymote_primary_service_define(&cymote_service_handler)) != AT_BLE_SUCCESS)
@@ -216,16 +222,36 @@ int main(void)
 	
 	/* Set ULP mode */
 	//ble_set_ulp_mode(BLE_ULP_MODE_SET);
-	
-	dummy_data_counter = 0;
 
-	while(true)
+	cymote_info_data newData;
+
+	while(1)
 	{
+		
 		/* BLE Event task */
 		ble_event_task(BLE_EVENT_TIMEOUT);
 		
 		/* Write application task */
+		if (dummy_data_counter != dummy_data_counter_old){
+			newData.data_len = 1;
+			newData.info_data = dummy_data + dummy_data_counter;
+			printf("data.info_data: %d\r\n", *(newData.info_data));
+			UPDATE_DUMMY_DATA(&cymote_service_handler, &newData, cymote_connection_handle);
+			dummy_data_counter_old = dummy_data_counter;
+		}
 		
+		if (dummy_data_2_state != 0){
+			dummy_data_2_state = 0;
+			
+			char newValue[DUMMY_DATA_2_MAX_LEN];
+			int value = rand()%1000;
+			uint8_t len = snprintf(newValue, DUMMY_DATA_2_MAX_LEN, "%d", value);
+			printf("newValue: %s\r\n", newValue);
+						
+			newData.info_data = (uint8_t*)newValue;
+			newData.data_len = len;
+			UPDATE_DUMMY_DATA_2(&cymote_service_handler, &newData, cymote_connection_handle);
+		}
 		
 
 	}
