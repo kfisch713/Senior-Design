@@ -12,7 +12,12 @@
 #include <asf.h>
 #include <LSM9DS0.h>
 
+static void configure_spi_master(void);
+
 struct uart_module console_instance;
+struct spi_module spi_master_instance;
+struct spi_slave_inst slave;
+volatile bool transrev_complete_spi_master = false;
 
 int main(void)
 {
@@ -20,21 +25,27 @@ int main(void)
 	system_clock_config(CLOCK_RESOURCE_XO_26_MHZ, CLOCK_FREQ_3_25_MHZ);
 	configure_console(&console_instance);
 	configure_gpio();
-	
-	/* Start up SPI and read the status register. */
-	uint8_t receive = 0x00;
-	spi_read_byte(WHO_AM_I_XM);
-	receive = spi_read_byte(WHO_AM_I_XM);
-	printf("Should be 0x49: 0x%x\r\n", receive);
-	
-	/* Initialize accelerometer control registers. */
-	init_accelerometer();
-	init_accelerometer_odr(A_ODR_100);
-	init_accelerometer_scale(A_SCALE_2G);
+}
 
-    while (1) 
-    {
-		print_raw_accelerometer();
-		/* print_calculated_accelerometer(A_ODR_100, A_SCALE_2G); */
-    }
+static void configure_spi_master(void) {
+	struct spi_config config_spi_master;
+	struct spi_slave_inst_config slave_dev_config;
+	
+	/* Configure and initialize software device instance of peripheral slave */
+	spi_slave_inst_get_config_defaults(&slave_dev_config);
+	slave_dev_config.ss_pin = SSC_PIN;
+	spi_attach_slave(&slave, &slave_dev_config);
+	
+	/* Configure, initialize and enable SPI module */
+	spi_get_config_defaults(&config_spi_master);
+	config_spi_master.clock_divider = 154;
+	config_spi_master.transfer_mode = SPI_TRANSFER_MODE_1;
+	config_spi_master.data_order = SPI_DATA_ORDER_MSB;
+	
+	/* Configure Slave Select */
+	config_spi_master.pin_number_pad[2] = PINMUX_UNUSED;
+	config_spi_master.pinmux_sel_pad[2] = PINMUX_UNUSED;
+	
+	spi_init(&spi_master_instance, SPI0, &config_spi_master);
+	spi_enable(&spi_master_instance);
 }

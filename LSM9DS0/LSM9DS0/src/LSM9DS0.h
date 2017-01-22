@@ -1,7 +1,7 @@
 /*
  * LSM9DS0.h
  *
- * Created: 11/19/2016 3:26:03 PM
+ * Created: 1/22/2017 3:26:03 PM
  * Author: Michael Linthicum
  */ 
 
@@ -55,28 +55,6 @@ typedef enum {
 } a_scale;
 
 /*
- * Transfers a byte to the device and reads and returns the byte transfered
- * out of the device.  The simplest SPI operation.
- */
-uint8_t spi_transfer(uint8_t data);
-
-/*
- *  Writes the value specified in uint8_t data to the register specified by
- *  uint8_t address.
- */
-void my_spi_write(uint8_t address, uint8_t data);
-
-/*
- *  Read a byte through SPI
- */
-uint8_t spi_read_byte(uint8_t address);
-
-/* 
- * Read a certain number of bytes from a register.
- */
-void spi_read_bytes(uint8_t address, uint8_t* data, uint8_t count);
-
-/*
  * Reads accelerometer values and prints them raw.
  */
 void print_raw_accelerometer(void);
@@ -85,18 +63,6 @@ void print_raw_accelerometer(void);
  * Reads and calculates accelerometer values and prints them.
  */
 void print_calculated_accelerometer(a_odr rate, a_scale scale);
-
-/*
- *  Writes a high value to the bit corresponding with uint8_t bit.
- *  The bits are ordered from right to left, zero indexed.
- */
-uint8_t bit_write_high(uint8_t data, uint8_t bit);
-
-/*
- *  Reads the bit value corresponding with uint8_t bit.
- *  This bits are ordered from right to left, zero indexed.
- */
-uint8_t bit_read(uint8_t data, uint8_t bit);
 
 /* 
  * Set the output data rate for the accelerometer.
