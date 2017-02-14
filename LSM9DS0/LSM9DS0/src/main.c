@@ -22,9 +22,13 @@ volatile bool transrev_complete_spi_master = false;
 int main(void)
 {
 	/* Board, SPI, and console setup. */
-	system_clock_config(CLOCK_RESOURCE_XO_26_MHZ, CLOCK_FREQ_3_25_MHZ);
+	//system_clock_config(CLOCK_RESOURCE_XO_26_MHZ, CLOCK_FREQ_3_25_MHZ);
 	configure_console(&console_instance);
-	configure_gpio();
+	//configure_gpio();
+	
+	while(1) {
+		printf("Hello\r\n");
+	}
 }
 
 static void configure_spi_master(void) {
