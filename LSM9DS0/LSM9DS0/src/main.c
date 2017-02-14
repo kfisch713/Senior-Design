@@ -54,10 +54,12 @@ int main(void)
 
 	while (1)
 	{
-		//bb_print_raw_accelerometer();
-		bb_print_calculated_accelerometer(A_ODR_200, A_SCALE_6G);
-		//bb_print_raw_magnetometer();
-		//bb_print_raw_gyroscope();
+		uint16_t accelerometer_data[3];
+		
+		bb_get_raw_accelerometer(accelerometer_data);
+		
+		printf("aX: %d, aY: %d, aZ: %d\r\n", accelerometer_data[0], accelerometer_data[1], accelerometer_data[2]);
+		//bb_print_calculated_accelerometer(A_ODR_200, A_SCALE_6G);
 		
 		//uint8_t data = hw_spi_read(&master_instance, &slave_instance, WHO_AM_I_XM);
 		//while (!transceive_complete) { /* Wait for write complete */ }

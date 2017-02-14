@@ -166,7 +166,7 @@ void bb_init_accelerometer_scale(a_scale scale);
 /*
  * Reads accelerometer values and prints them raw.
  */
-void bb_print_raw_accelerometer(void);
+void bb_get_raw_accelerometer(uint16_t *output);
 
 /*
  * Reads and calculates accelerometer values and prints them.
