@@ -34,12 +34,13 @@
           <option id="sam0.drivers.gpio" value="Add" config="polled" content-id="Atmel.ASF" />
           <option id="sam0.drivers.spi" value="Add" config="callback" content-id="Atmel.ASF" />
           <option id="sam0.utils.stdio.stdio_serial" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="sam0.drivers.uart" value="Add" config="" content-id="Atmel.ASF" />
           <option id="common.applications.user_application.xplained_pro2" value="Add" config="" content-id="Atmel.ASF" />
           <option id="common.utils" value="Add" config="" content-id="Atmel.ASF" />
           <option id="sam0.utils.cmsis.samb11.source.template" value="Add" config="" content-id="Atmel.ASF" />
         </options>
-        <configurations />
+        <configurations>
+          <configuration key="config.sam0.drivers.gpio" value="polled" default="callback" content-id="Atmel.ASF" />
+        </configurations>
         <files>
           <file path="src/main_sam_b.c" framework="" version="" source="common2/applications/xplained_pro_user_application/main_sam_b.c" changed="False" content-id="Atmel.ASF" />
           <file path="src/config/conf_board.h" framework="" version="" source="common2/applications/xplained_pro_user_application/samb11g18a_samb11_xplained_pro/config/conf_board.h" changed="False" content-id="Atmel.ASF" />
@@ -129,21 +130,21 @@
           <file path="src/ASF/common/services/serial/samb_uart/uart_serial.h" framework="" version="3.31.0" source="common\services\serial\samb_uart\uart_serial.h" changed="False" content-id="Atmel.ASF" />
           <file path="src/ASF/common/services/serial/serial.h" framework="" version="3.31.0" source="common\services\serial\serial.h" changed="False" content-id="Atmel.ASF" />
           <file path="src/ASF/sam0/drivers/gpio/gpio.c" framework="" version="3.31.0" source="sam0\drivers\gpio\gpio.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/sam0/drivers/gpio/quick_start/qs_gpio_basic.h" framework="" version="3.31.0" source="sam0\drivers\gpio\quick_start\qs_gpio_basic.h" changed="False" content-id="Atmel.ASF" />
           <file path="src/ASF/sam0/drivers/gpio/gpio.h" framework="" version="3.31.0" source="sam0\drivers\gpio\gpio.h" changed="False" content-id="Atmel.ASF" />
           <file path="src/ASF/sam0/drivers/spi/spi.c" framework="" version="3.31.0" source="sam0\drivers\spi\spi.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/sam0/drivers/spi/spi_callback.c" framework="" version="3.31.0" source="sam0\drivers\spi\spi_callback.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/sam0/drivers/spi/quick_start_master_callback/qs_spi_master_callback.h" framework="" version="3.31.0" source="sam0\drivers\spi\quick_start_master_callback\qs_spi_master_callback.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/sam0/drivers/spi/quick_start_slave_callback/qs_spi_slave_callback.h" framework="" version="3.31.0" source="sam0\drivers\spi\quick_start_slave_callback\qs_spi_slave_callback.h" changed="False" content-id="Atmel.ASF" />
           <file path="src/ASF/sam0/drivers/spi/quick_start_slave/qs_spi_slave_basic.h" framework="" version="3.31.0" source="sam0\drivers\spi\quick_start_slave\qs_spi_slave_basic.h" changed="False" content-id="Atmel.ASF" />
           <file path="src/ASF/sam0/drivers/spi/spi.h" framework="" version="3.31.0" source="sam0\drivers\spi\spi.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/sam0/drivers/spi/spi_callback.h" framework="" version="3.31.0" source="sam0\drivers\spi\spi_callback.h" changed="False" content-id="Atmel.ASF" />
           <file path="src/ASF/sam0/drivers/spi/quick_start_master/qs_spi_master_basic.h" framework="" version="3.31.0" source="sam0\drivers\spi\quick_start_master\qs_spi_master_basic.h" changed="False" content-id="Atmel.ASF" />
           <file path="src/Config/conf_spi.h" framework="" version="3.31.0" source="sam0\drivers\spi\module_config\conf_spi.h" changed="False" content-id="Atmel.ASF" />
           <file path="src/ASF/sam0/drivers/system/system_sam_b.c" framework="" version="3.31.0" source="sam0\drivers\system\system_sam_b.c" changed="False" content-id="Atmel.ASF" />
           <file path="src/ASF/sam0/drivers/system/system_sam_b.h" framework="" version="3.31.0" source="sam0\drivers\system\system_sam_b.h" changed="False" content-id="Atmel.ASF" />
           <file path="src/ASF/sam0/utils/stdio/read.c" framework="" version="3.31.0" source="sam0\utils\stdio\read.c" changed="False" content-id="Atmel.ASF" />
           <file path="src/ASF/sam0/utils/stdio/write.c" framework="" version="3.31.0" source="sam0\utils\stdio\write.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam0/drivers/gpio/quick_start/qs_gpio_basic.h" framework="" version="3.31.0" source="sam0\drivers\gpio\quick_start\qs_gpio_basic.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam0/drivers/spi/spi_callback.c" framework="" version="3.31.0" source="sam0\drivers\spi\spi_callback.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam0/drivers/spi/quick_start_master_callback/qs_spi_master_callback.h" framework="" version="3.31.0" source="sam0\drivers\spi\quick_start_master_callback\qs_spi_master_callback.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam0/drivers/spi/quick_start_slave_callback/qs_spi_slave_callback.h" framework="" version="3.31.0" source="sam0\drivers\spi\quick_start_slave_callback\qs_spi_slave_callback.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam0/drivers/spi/spi_callback.h" framework="" version="3.31.0" source="sam0\drivers\spi\spi_callback.h" changed="False" content-id="Atmel.ASF" />
         </files>
         <documentation help="http://asf.atmel.com/docs/3.31.0/common.applications.user_application.xplained_pro2.samb11_xplained_pro/html/index.html" />
         <offline-documentation help="" />
@@ -155,7 +156,7 @@
       </framework-data>
     </AsfFrameworkConfig>
     <avrtool>com.atmel.avrdbg.tool.edbg</avrtool>
-    <avrtoolserialnumber>ATML2534030200002237</avrtoolserialnumber>
+    <avrtoolserialnumber>ATML2534030200000601</avrtoolserialnumber>
     <avrdeviceexpectedsignature>0x2000B0</avrdeviceexpectedsignature>
     <avrtoolinterface>SWD</avrtoolinterface>
     <com_atmel_avrdbg_tool_edbg>
@@ -166,22 +167,20 @@
         <InterfaceName>SWD</InterfaceName>
       </ToolOptions>
       <ToolType>com.atmel.avrdbg.tool.edbg</ToolType>
-      <ToolNumber>ATML2534030200002237</ToolNumber>
+      <ToolNumber>ATML2534030200000601</ToolNumber>
       <ToolName>EDBG</ToolName>
     </com_atmel_avrdbg_tool_edbg>
     <avrtoolinterfaceclock>2000000</avrtoolinterfaceclock>
     <custom>
-      <ToolOptions>
+      <ToolOptions xmlns="">
         <InterfaceProperties>
-          <SwdClock>2000000</SwdClock>
         </InterfaceProperties>
-        <InterfaceName>
-        </InterfaceName>
+        <InterfaceName>SWD</InterfaceName>
       </ToolOptions>
-      <ToolType>custom</ToolType>
-      <ToolNumber>
+      <ToolType xmlns="">custom</ToolType>
+      <ToolNumber xmlns="">
       </ToolNumber>
-      <ToolName>Custom Programming Tool</ToolName>
+      <ToolName xmlns="">Custom Programming Tool</ToolName>
     </custom>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
@@ -488,6 +487,21 @@
     <Compile Include="src\ASF\sam0\drivers\gpio\gpio.c">
       <SubType>compile</SubType>
     </Compile>
+    <None Include="src\ASF\sam0\drivers\gpio\quick_start\qs_gpio_basic.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam0\drivers\spi\quick_start_master_callback\qs_spi_master_callback.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam0\drivers\spi\quick_start_slave_callback\qs_spi_slave_callback.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="src\ASF\sam0\drivers\spi\spi_callback.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <None Include="src\ASF\sam0\drivers\spi\spi_callback.h">
+      <SubType>compile</SubType>
+    </None>
     <Compile Include="src\ASF\sam0\drivers\system\system_sam_b.c">
       <SubType>compile</SubType>
     </Compile>
@@ -506,31 +520,16 @@
     <None Include="src\ASF\sam0\drivers\spi\quick_start_master\qs_spi_master_basic.h">
       <SubType>compile</SubType>
     </None>
-    <None Include="src\ASF\sam0\drivers\spi\spi_callback.h">
-      <SubType>compile</SubType>
-    </None>
     <None Include="src\ASF\sam0\drivers\spi\spi.h">
       <SubType>compile</SubType>
     </None>
     <None Include="src\ASF\sam0\drivers\spi\quick_start_slave\qs_spi_slave_basic.h">
       <SubType>compile</SubType>
     </None>
-    <None Include="src\ASF\sam0\drivers\spi\quick_start_slave_callback\qs_spi_slave_callback.h">
-      <SubType>compile</SubType>
-    </None>
-    <None Include="src\ASF\sam0\drivers\spi\quick_start_master_callback\qs_spi_master_callback.h">
-      <SubType>compile</SubType>
-    </None>
     <Compile Include="src\ASF\sam0\drivers\spi\spi.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="src\ASF\sam0\drivers\spi\spi_callback.c">
-      <SubType>compile</SubType>
-    </Compile>
     <None Include="src\ASF\sam0\drivers\gpio\gpio.h">
-      <SubType>compile</SubType>
-    </None>
-    <None Include="src\ASF\sam0\drivers\gpio\quick_start\qs_gpio_basic.h">
       <SubType>compile</SubType>
     </None>
     <None Include="src\ASF\common\services\serial\serial.h">
@@ -768,6 +767,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\ASF\sam0\utils\syscalls\gcc\syscalls.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\BitBang.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\BitBang.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\LSM9DS0.c">

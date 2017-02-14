@@ -52,7 +52,7 @@
 							<Attribute>template</Attribute>
 							<Category>source</Category>
 							<Condition>C Exe</Condition>
-							<FileContentHash>OqOCxrzBxUIuwh70Vu1jCQ==</FileContentHash>
+							<FileContentHash>5ytvsSeqZfJZ+wZypdT2Jw==</FileContentHash>
 							<FileVersion></FileVersion>
 							<Name>templates/main.c</Name>
 							<SelectString>Main file (.c)</SelectString>
