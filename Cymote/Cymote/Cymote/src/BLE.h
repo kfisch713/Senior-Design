@@ -20,7 +20,7 @@
 /* APP_ADV_TIMEOUT Advertising time-out between 0x0001 and 0x028F in seconds, 0x0000 disables time-out.*/
 #define APP_ADV_TIMEOUT						(0)
 
-#define BLE_UPDATE_INTERVAL					(2)
+#define BLE_UPDATE_INTERVAL					(1)
 
 /* number of cymote service characteristics. See cymote_characteristic_value_t */
 #define MAX_NUM_CHARACTERISTICS 0x03
