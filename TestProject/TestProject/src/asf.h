@@ -68,10 +68,6 @@
 // From module: Part identification macros
 #include <parts.h>
 
-// From module: SPI - Serial Peripheral Interface for SAMB
-#include <spi.h>
-#include <spi_callback.h>
-
 // From module: SYSTEM - Core System Driver for SAMB
 #include <system_sam_b.h>
 
