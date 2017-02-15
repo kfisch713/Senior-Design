@@ -259,7 +259,7 @@ void bb_init_accelerometer_scale(a_scale scale)
 /*
  * Read and print raw accelerometer data.
  */
-void bb_print_raw_accelerometer()
+void bb_print_raw_accelerometer(uint16_t *output)
 {
 	uint8_t temp[6];
 	
@@ -267,11 +267,9 @@ void bb_print_raw_accelerometer()
 	bb_am_read_bytes(OUT_X_L_A, temp, 6);
 	
 	/* Store it into various variables. */
-	uint16_t ax = (temp[1] << 8) | temp[0];
-	uint16_t ay = (temp[3] << 8) | temp[2];
-	uint16_t az = (temp[5] << 8) | temp[4];
-	
-	printf("aX: %d, aY: %d, aZ: %d\r\n", ax, ay, az);
+	output[0] = (temp[1] << 8) | temp[0]; /* X */
+	output[1] = (temp[3] << 8) | temp[2]; /* Y */
+	output[2] = (temp[5] << 8) | temp[4]; /* Z */
 }
 
 /*

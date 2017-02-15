@@ -72,6 +72,7 @@ uint8_t dummy_data_counter = 0;
 uint8_t dummy_data_counter_old = 0;
 uint8_t dummy_data_2_state = 0;
 uint8_t dummy_data[] = {'A', 'B', 'C', 'D', 'E', 'a'};
+uint16_t accelerometer_data[3];
 
 
 
@@ -90,6 +91,7 @@ static void button_cb(void)
 {
 	/* Add button callback functionality here */
 	
+	//sizeof(dummy_data) is the size of the array. If the counter is counting outside the array, reset it to 0
 	if (dummy_data_counter >= (unsigned int)(sizeof(dummy_data)/sizeof(dummy_data[0])-1) ){
 		dummy_data_counter = 0;
 	}
@@ -153,7 +155,7 @@ int main(void)
 
 	/* Initialize serial console */
 	serial_console_init();
-	configure_console(&console_instance);
+	//configure_console(&console_instance);
 	
 	/* Hardware timer */
 	hw_timer_init();
@@ -249,7 +251,7 @@ int main(void)
 				UPDATE_DUMMY_DATA_2(&cymote_service_handler, &newData, cymote_connection_handle);
 			}
 		}
-
+		/*
 		do {
 		} while (adc_read(ADC_INPUT_CH_GPIO_MS1, &result) == STATUS_BUSY);
 		do {
@@ -268,11 +270,35 @@ int main(void)
 		configure_pwm_from_duty_pin_11(99);
 		else
 		configure_pwm_from_duty_pin_11(result2 / 11);
-		
+		*/
 		
 
 		/* Print accelerometer data */
-		bb_print_raw_accelerometer();
+		bb_print_raw_accelerometer(accelerometer_data);
+
+		
+		char newValue[ACCEL_X_MAX_LEN];
+		uint8_t value = accelerometer_data[0] >> 8;
+		uint8_t len = snprintf(newValue, ACCEL_X_MAX_LEN, "%d", 123456);
+		printf("Accel X High Byte: %s, len=%d\r\n", newValue, len);
+		
+		newData.info_data = (uint8_t*)newValue;
+		newData.data_len = len;
+		UPDATE_ACCEL_X_HIGH_DATA(&cymote_service_handler, &newData, cymote_connection_handle);
+
+		
+		value = (uint8_t)(accelerometer_data[0] & 0x00FF);
+		len = snprintf(newValue, ACCEL_X_MAX_LEN, "%d", value);
+		printf("Accel X Low Byte: %s\r\n", newValue);
+		
+		newData.info_data = (uint8_t*)newValue;
+		newData.data_len = len;
+		UPDATE_ACCEL_X_LOW_DATA(&cymote_service_handler, &newData, cymote_connection_handle);
+		
+
+
+
+		printf("aX: %d, aY: %d, aZ: %d\r\n", accelerometer_data[0], accelerometer_data[1], accelerometer_data[2]);
 
     }
 }
