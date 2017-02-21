@@ -53,16 +53,12 @@
 #include <asf.h>
 #include "BLE.h"
 #include "LSM9DS0.h"
-#include "BitBang.h"
 #include "ADC_PWM.h"
 #include "timer_hw.h"
 #include "button.h"
 #include "console_serial.h"
 
-
-
 #define USE_BLE 1
-
 
 /* Globals */
 cymote_service_handler_t cymote_service_handler;
@@ -72,8 +68,6 @@ uint8_t dummy_data_counter = 0;
 uint8_t dummy_data_counter_old = 0;
 uint8_t dummy_data_2_state = 0;
 uint8_t dummy_data[] = {'A', 'B', 'C', 'D', 'E', 'a'};
-
-
 
 /* timer callback function */
 static void timer_callback_fn(void)
@@ -151,22 +145,22 @@ int main(void)
 	acquire_sleep_lock();
 	system_clock_config(CLOCK_RESOURCE_XO_26_MHZ, CLOCK_FREQ_26_MHZ);
 
-	/* Initialize serial console */
+	/* Initialize serial console. */
 	serial_console_init();
 	configure_console(&console_instance);
 	
-	/* Hardware timer */
+	/* Hardware timer. */
 	hw_timer_init();
 	hw_timer_register_callback(timer_callback_fn);
 	//hw_timer_start(BLE_UPDATE_INTERVAL);
 	
-	/* button initialization */
+	/* Button initialization. */
 	gpio_init();
 	button_init();
 	button_register_callback(button_cb);
 
-	/* Bit banged gpio configuration. */
-	bb_configure_gpio();
+	/* LSM9DS0 gpio configuration. */
+	configure_gpio();
 
 	/* Start up SPI and read the status register. */
 	uint8_t receive = 0x00;
@@ -180,51 +174,48 @@ int main(void)
 	bb_init_accelerometer_scale(A_SCALE_2G);
 	
 	/* Initialize magnetometer control registers. */
-	bb_init_magnetometer();
-	bb_init_magnetometer_odr(M_ODR_100);
-	bb_init_magnetometer_scale(M_SCALE_2GS);
+	init_magnetometer();
+	init_magnetometer_odr(M_ODR_100);
+	init_magnetometer_scale(M_SCALE_2GS);
 	
 	/* Initialize gyroscope control registers. */
-	bb_init_gyroscope();
-	bb_init_gyroscope_odr(G_ODR_190_BW_125);
-	bb_init_gyroscope_scale(G_SCALE_2000DPS);
+	init_gyroscope();
+	init_gyroscope_odr(G_ODR_190_BW_125);
+	init_gyroscope_scale(G_SCALE_2000DPS);
 	
 	
 	if(USE_BLE){
 		DBG_LOG("Initializing BLE Application");
 	
-		/* initialize the BLE chip  and Set the Device Address */
+		/* Initialize the BLE chip and set the device address. */
 		at_ble_addr_t addr;
 		addr.type = AT_BLE_ADDRESS_PUBLIC;
 		int i;
-		for(i=0; i<AT_BLE_ADDR_LEN; i++){
+		for(i = 0; i < AT_BLE_ADDR_LEN; i++){
 			addr.addr[i] = 0;
 		}
-		addr.addr[0]=1;
+		addr.addr[0] = 1;
 		ble_device_init(&addr);
 
 		cymote_init_service(&cymote_service_handler);
-		if ((status = cymote_primary_service_define(&cymote_service_handler)) != AT_BLE_SUCCESS)
-		{
+		if((status = cymote_primary_service_define(&cymote_service_handler)) != AT_BLE_SUCCESS){
 			DBG_LOG("Device Information Service definition failed,reason %x",status);
 		}
 
 		device_information_advertise();
 
-		/* Register callbacks for gap related events */
-		ble_mgr_events_callback_handler(REGISTER_CALL_BACK,
-		BLE_GAP_EVENT_TYPE,
-		cymote_app_gap_cb);
+		/* Register callbacks for gap related events. */
+		ble_mgr_events_callback_handler(REGISTER_CALL_BACK, BLE_GAP_EVENT_TYPE, cymote_app_gap_cb);
 	}
 
-	/* Initialize Joystick registers */ 
+	/* Initialize Joystick registers. */ 
 	configure_adc_pin3();
 	configure_adc_pin4();
 
-    /* Main working loop */
+    /* Main working loop. */
     while (1) 
     {
-		if (USE_BLE){
+		if(USE_BLE){
 			/* BLE Event task */
 			ble_event_task(BLE_EVENT_TIMEOUT);
 		
@@ -236,11 +227,12 @@ int main(void)
 				UPDATE_DUMMY_DATA(&cymote_service_handler, &newData, cymote_connection_handle);
 				dummy_data_counter_old = dummy_data_counter;
 			}
+			
 			if (dummy_data_2_state != 0){
 				dummy_data_2_state = 0;
 			
 				char newValue[DUMMY_DATA_2_MAX_LEN];
-				int value = rand()%1000;
+				int value = rand() % 1000;
 				uint8_t len = snprintf(newValue, DUMMY_DATA_2_MAX_LEN, "%d", value);
 				printf("newValue: %s\r\n", newValue);
 			
@@ -250,10 +242,8 @@ int main(void)
 			}
 		}
 
-		do {
-		} while (adc_read(ADC_INPUT_CH_GPIO_MS1, &result) == STATUS_BUSY);
-		do {
-		} while (adc_read(ADC_INPUT_CH_GPIO_MS2, &result2) == STATUS_BUSY);
+		do {} while (adc_read(ADC_INPUT_CH_GPIO_MS1, &result) == STATUS_BUSY);
+		do {} while (adc_read(ADC_INPUT_CH_GPIO_MS2, &result2) == STATUS_BUSY);
 		configure_adc_pin3();
 		configure_adc_pin4();
 		//adc_read(ADC_INPUT_CH_GPIO_MS1, &result);
@@ -268,14 +258,22 @@ int main(void)
 		configure_pwm_from_duty_pin_11(99);
 		else
 		configure_pwm_from_duty_pin_11(result2 / 11);
-		
-		
 
 		/* Print accelerometer data */
 		bb_print_raw_accelerometer();
 
     }
 }
+
+
+
+
+
+
+
+
+
+
 
 //int main(void)
 //{
