@@ -13,10 +13,10 @@
  const uint8_t BOARD_NAME_UUID[16]     = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01};
  const uint8_t DUMMY_DATA_UUID[16]     = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02};
  const uint8_t DUMMY_DATA_2_UUID[16]   = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03};
- const uint8_t ACCEL_X_HIGH_UUID[16]   = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x04};
+ const uint8_t ACCEL_X[16]			   = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04};
  const uint8_t ACCEL_X_LOW_UUID[16]	   = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x04};
 
- const char* dummy_data_2_description = "Random number 0-999";
+ char* dummy_data_2_description = "Random number 0-999";
 
 
  /* Initialize cymote service related information. */
@@ -116,16 +116,16 @@
 	 cymote_service->service_characteristics[index].server_config_handle = 0;         /*server config handles*/
 	 cymote_service->service_characteristics[index].presentation_format = NULL;
 
-	 /* Accelerometer x axis HIGH byte raw data */
+	 /* Accelerometer x axis raw data */
 	 index = 3;
 	 cymote_service->service_characteristics[index].char_val_handle = 0;
 	 cymote_service->service_characteristics[index].uuid.type = AT_BLE_UUID_128;
 	 for(i=0;i<16;i++){
-		 cymote_service->service_characteristics[index].uuid.uuid[i] = ACCEL_X_HIGH_UUID[i];
+		 cymote_service->service_characteristics[index].uuid.uuid[i] = ACCEL_X[i];
 	 }
 	 cymote_service->service_characteristics[index].properties = AT_BLE_CHAR_READ;
-	 memcpy(characteristic_value.accel_x_high_raw, ACCEL_X_DEFAULT, ACCEL_X_LEN);
-	 cymote_service->service_characteristics[index].init_value = characteristic_value.accel_x_high_raw;
+	 memcpy(characteristic_value.accel_x, ACCEL_X_DEFAULT, ACCEL_X_LEN);
+	 cymote_service->service_characteristics[index].init_value = characteristic_value.accel_x;
 
 	 cymote_service->service_characteristics[index].value_init_len = ACCEL_X_LEN;
 	 cymote_service->service_characteristics[index].value_max_len = ACCEL_X_MAX_LEN;
@@ -145,35 +145,9 @@
 	 cymote_service->service_characteristics[index].server_config_handle = 0;         /*server config handles*/
 	 cymote_service->service_characteristics[index].presentation_format = NULL;
 
-	 /* Accelerometer x axis LOW byte raw data */
-	 index = 4;
-	 cymote_service->service_characteristics[index].char_val_handle = 0;
-	 cymote_service->service_characteristics[index].uuid.type = AT_BLE_UUID_128;
-	 for(i=0;i<16;i++){
-		 cymote_service->service_characteristics[index].uuid.uuid[i] = ACCEL_X_LOW_UUID[i];
-	 }
-	 cymote_service->service_characteristics[index].properties = AT_BLE_CHAR_READ;
-	 memcpy(characteristic_value.accel_x_low_raw, ACCEL_X_DEFAULT, ACCEL_X_LEN);
-	 cymote_service->service_characteristics[index].init_value = characteristic_value.accel_x_low_raw;
-
-	 cymote_service->service_characteristics[index].value_init_len = ACCEL_X_LEN;
-	 cymote_service->service_characteristics[index].value_max_len = ACCEL_X_MAX_LEN;
-	 #if BLE_PAIR_ENABLE
-	 cymote_service->service_characteristics[index].value_permissions = AT_BLE_ATTR_READABLE_REQ_AUTHN_NO_AUTHR;   /* permissions */
-	 #else
-	 cymote_service->service_characteristics[index].value_permissions = AT_BLE_ATTR_READABLE_NO_AUTHN_NO_AUTHR;   /* permissions */
-	 #endif
-	 cymote_service->service_characteristics[index].user_desc = NULL;            /* user defined name */
-	 cymote_service->service_characteristics[index].user_desc_len = 0;
-	 cymote_service->service_characteristics[index].user_desc_max_len = cymote_service->service_characteristics[index].user_desc_len;
-	 cymote_service->service_characteristics[index].user_desc_permissions = AT_BLE_ATTR_NO_PERMISSIONS;             /*user description permissions*/
-	 cymote_service->service_characteristics[index].client_config_permissions = AT_BLE_ATTR_NO_PERMISSIONS;         /*client config permissions*/
-	 cymote_service->service_characteristics[index].server_config_permissions = AT_BLE_ATTR_NO_PERMISSIONS;         /*server config permissions*/
-	 cymote_service->service_characteristics[index].user_desc_handle = 0;             /*user desc handles*/
-	 cymote_service->service_characteristics[index].client_config_handle = 0;         /*client config handles*/
-	 cymote_service->service_characteristics[index].server_config_handle = 0;         /*server config handles*/
-	 cymote_service->service_characteristics[index].presentation_format = NULL;
-
+	 
+	 
+	 
 	 
  }
 

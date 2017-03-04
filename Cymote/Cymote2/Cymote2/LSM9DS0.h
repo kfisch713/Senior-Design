@@ -1,22 +1,13 @@
 /*
- * LSM9DS0.h
+ * BitBang.h
  *
  * Created: 1/23/2017 5:51:19 PM
- * Author:  Michael Linthicum mpl@iastate.edu
+ *  Author: Michael
  */ 
+
 
 #ifndef LSM9DS0_H_
 #define LSM9DS0_H_
-
-#define AM_SSC_PIN  PIN_LP_GPIO_12 /* EXT1 15 CSXM  */
-#define AM_SCK_PIN  PIN_LP_GPIO_10 /* EXT1 18 SCL   */
-#define AM_MISO_PIN PIN_LP_GPIO_13 /* EXT1 17 SDOXM */
-#define AM_MOSI_PIN PIN_LP_GPIO_11 /* EXT1 16 SDA   */
-
-#define G_SSC_PIN	PIN_LP_GPIO_16 /* EXT3 15 CSG  */
-#define G_SCK_PIN	PIN_LP_GPIO_10 /* EXT1 18 SCL  */
-#define G_MISO_PIN	PIN_LP_GPIO_18 /* EXT3 17 SDOG */
-#define G_MOSI_PIN	PIN_LP_GPIO_11 /* EXT1 16 SDA  */
 
 #define READ            0x80
 #define MULTIPLE_READ   0xC0
@@ -41,6 +32,15 @@
 #define CTRL_REG5_G		0x24
 #define FIFO_SRC_REG    0x2F
 
+#define AM_SSC_PIN  PIN_LP_GPIO_12 /* EXT1 15 CSXM  */
+#define AM_SCK_PIN  PIN_LP_GPIO_10 /* EXT1 18 SCL   */
+#define AM_MISO_PIN PIN_LP_GPIO_13 /* EXT1 17 SDOXM */
+#define AM_MOSI_PIN PIN_LP_GPIO_11 /* EXT1 16 SDA   */
+
+#define G_SSC_PIN	PIN_LP_GPIO_16 /* EXT3 15 CSG  */
+#define G_SCK_PIN	PIN_LP_GPIO_10 /* EXT1 18 SCL  */
+#define G_MISO_PIN	PIN_LP_GPIO_18 /* EXT3 17 SDOG */
+#define G_MOSI_PIN	PIN_LP_GPIO_11 /* EXT1 16 SDA  */
 
 /* All possible output data rates of the accelerometer. */
 typedef enum {
@@ -113,59 +113,59 @@ typedef enum {
  * Transfers a byte to the device and reads and returns the byte transfered
  * out of the device.  The simplest SPI operation.
  */
-uint8_t bb_am_transfer(uint8_t data);
+uint8_t am_transfer(uint8_t data);
 
 /*
  * Transfers a byte to the device and reads and returns the byte transfered
  * out of the device.  The simplest SPI operation.
  */
-uint8_t bb_g_transfer(uint8_t data);
+uint8_t g_transfer(uint8_t data);
 
 /*
  *  Writes the value specified in uint8_t data to the accelerometer/magnetometer 
  *  register specified by uint8_t address.
  */
-void bb_am_write(uint8_t address, uint8_t data);
+void am_write(uint8_t address, uint8_t data);
 
 /*
  *  Writes the value specified in uint8_t data to the gyroscope register 
  *  specified by uint8_t address.
  */
-void bb_g_write(uint8_t address, uint8_t data);
+void g_write(uint8_t address, uint8_t data);
 
 /*
  *  Read a byte through SPI from the accelerometer/magnetometer registers.
  */
-uint8_t bb_am_read_byte(uint8_t address);
+uint8_t am_read_byte(uint8_t address);
 
 /*
  *  Read a byte through SPI from the gyroscope registers.
  */
-uint8_t bb_g_read_byte(uint8_t address);
+uint8_t g_read_byte(uint8_t address);
 
 /*
  * Read a specified number of bytes from the accelerometer/magnetometer
  * registers.
  */
-void bb_am_read_bytes(uint8_t address, uint8_t* data, uint8_t count);
+void am_read_bytes(uint8_t address, uint8_t* data, uint8_t count);
 
 /*
  * Read a specified number of bytes from the gyroscope
  * registers.
  */
-void bb_g_read_bytes(uint8_t address, uint8_t* data, uint8_t count);
+void g_read_bytes(uint8_t address, uint8_t* data, uint8_t count);
 
 /*
  *  Writes a high value to the bit corresponding with uint8_t bit.
  *  The bits are ordered from right to left, zero indexed.
  */
-uint8_t bb_bit_write_high(uint8_t data, uint8_t bit);
+uint8_t bit_write_high(uint8_t data, uint8_t bit);
 
 /*
  *  Reads the bit value corresponding with uint8_t bit.
  *  This bits are ordered from right to left, zero indexed.
  */
-uint8_t bb_bit_read(uint8_t data, uint8_t bit);
+uint8_t bit_read(uint8_t data, uint8_t bit);
 
 /**************************************************************************************/
 /***********  Accelerometer register initiation and other such nonsense. **************/
@@ -174,27 +174,27 @@ uint8_t bb_bit_read(uint8_t data, uint8_t bit);
 /*
  * Initialize data transfer registers for accelerometer output.
  */
-void bb_init_accelerometer(void);
+void init_accelerometer(void);
 
 /* 
  * Set the output data rate for the accelerometer.
  */
-void bb_init_accelerometer_odr(a_odr rate);
+void init_accelerometer_odr(a_odr rate);
 
 /* 
  * Set the scale for the accelerometer.
  */
-void bb_init_accelerometer_scale(a_scale scale);
+void init_accelerometer_scale(a_scale scale);
 
 /*
  * Reads accelerometer values and prints them raw.
  */
-void bb_print_raw_accelerometer(void);
+void get_raw_accelerometer(uint16_t *output);
 
 /*
  * Reads and calculates accelerometer values and prints them.
  */
-void bb_print_calculated_accelerometer(a_odr rate, a_scale scale);
+void print_calculated_accelerometer(a_odr rate, a_scale scale);
 
 /**************************************************************************************/
 /***********  Magnetometer register initiation and other such nonsense. ***************/
@@ -247,6 +247,11 @@ void print_raw_gyroscope(void);
 /***********************************************************************/
 /*************** Board and Console set up nonsense *********************/
 /***********************************************************************/
+
+/*
+ * Configures the accelerometer control registers for the LSM9DS0.
+ */
+void configure_xm_ctrl_regs(void);
 
 /*
  * Configure UART console.

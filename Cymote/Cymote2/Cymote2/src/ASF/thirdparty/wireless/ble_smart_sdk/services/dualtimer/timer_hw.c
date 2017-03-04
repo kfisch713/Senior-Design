@@ -37,7 +37,7 @@ void hw_timer_start(uint32_t delay)
 		delay = 1;
 	}
 
-	dualtimer_set_counter(DUALTIMER_TIMER1,DUALTIMER_SET_CURRUNT_REG,CONF_DUALTIMER_TIMER1_LOAD*delay);
+	dualtimer_set_counter(DUALTIMER_TIMER1, DUALTIMER_SET_CURRUNT_REG, CONF_DUALTIMER_TIMER1_LOAD*delay);
 	dualtimer_enable(DUALTIMER_TIMER1);
 }
 

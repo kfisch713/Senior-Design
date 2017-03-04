@@ -166,14 +166,14 @@ int main(void)
 
 	/* Start up SPI and read the status register. */
 	uint8_t receive = 0x00;
-	bb_am_read_byte(WHO_AM_I_XM);
-	receive = bb_am_read_byte(WHO_AM_I_XM);
+	am_read_byte(WHO_AM_I_XM);
+	receive = am_read_byte(WHO_AM_I_XM);
 	printf("Should be 0x49: 0x%x\r\n", receive);
 
 	/* Initialize accelerometer control registers. */
-	bb_init_accelerometer();
-	bb_init_accelerometer_odr(A_ODR_100);
-	bb_init_accelerometer_scale(A_SCALE_2G);
+	init_accelerometer();
+	init_accelerometer_odr(A_ODR_100);
+	init_accelerometer_scale(A_SCALE_6G);
 	
 	/* Initialize magnetometer control registers. */
 	init_magnetometer();
@@ -267,19 +267,19 @@ int main(void)
 		*/
 
 		/* Print accelerometer data */
-		//bb_print_raw_accelerometer(accelerometer_data);
+		get_raw_accelerometer(accelerometer_data);
 
 		
 		char newValue[ACCEL_X_MAX_LEN];
-		uint8_t value = accelerometer_data[0] >> 8;
-		uint8_t len = snprintf(newValue, ACCEL_X_MAX_LEN, "%d", 123456);
-		printf("Accel X High Byte: %s, len=%d\r\n", newValue, len);
+		uint16_t value = accelerometer_data[0];
+		uint8_t len = snprintf(newValue, ACCEL_X_MAX_LEN, "%d", value);
+		printf("Accel X data: %s, len=%d\r\n", newValue, len);
 		
 		newData.info_data = (uint8_t*)newValue;
 		newData.data_len = len;
-		UPDATE_ACCEL_X_HIGH_DATA(&cymote_service_handler, &newData, cymote_connection_handle);
+		UPDATE_ACCEL_X(&cymote_service_handler, &newData, cymote_connection_handle);
 
-		
+		/*
 		value = (uint8_t)(accelerometer_data[0] & 0x00FF);
 		len = snprintf(newValue, ACCEL_X_MAX_LEN, "%d", value);
 		printf("Accel X Low Byte: %s\r\n", newValue);
@@ -287,7 +287,7 @@ int main(void)
 		newData.info_data = (uint8_t*)newValue;
 		newData.data_len = len;
 		UPDATE_ACCEL_X_LOW_DATA(&cymote_service_handler, &newData, cymote_connection_handle);
-		
+		*/
 
 
 
