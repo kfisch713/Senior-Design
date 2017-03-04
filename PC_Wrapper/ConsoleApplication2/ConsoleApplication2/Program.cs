@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Diagnostics;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 
@@ -15,6 +16,7 @@ namespace ConsoleApplication2
         {
             GattReadResult result = null;
             BluetoothLEDevice device = await BluetoothLEDevice.FromBluetoothAddressAsync(000000000001);
+            Stopwatch stopwatch = new Stopwatch();
             Console.WriteLine(device);
 
             foreach (GattDeviceService i in device.GattServices)
@@ -43,16 +45,24 @@ namespace ConsoleApplication2
                         Console.WriteLine(output);
                     */
 
-                    if (i.Uuid == new Guid("03000000-0000-0000-0000-000000000000"))
+                    
+
+                    if (i.Uuid == new Guid("04000000-0000-0000-0000-000000000000"))
                     {
                         try
                         {
+                            stopwatch.Reset();
+                            stopwatch.Start();
                             result = await i.ReadValueAsync(BluetoothCacheMode.Uncached);
                             if (result.Status == GattCommunicationStatus.Success)
                             {
                                 var dataReader = Windows.Storage.Streams.DataReader.FromBuffer(result.Value);
                                 var output = dataReader.ReadString(result.Value.Length);
-                                Console.WriteLine(output);
+                                //Console.WriteLine(String.Format("raw output: {0}", output));
+                                Int16 data = (Int16) UInt16.Parse(output);
+                                Console.WriteLine(data * (6.0/32768.0));
+                                stopwatch.Stop();
+                                //Console.WriteLine(stopwatch.ElapsedMilliseconds);
                             }
                             else
                             {
@@ -64,7 +74,7 @@ namespace ConsoleApplication2
                         {
                             Console.WriteLine(e);
                         }
-                        
+
                     }
                 }
             }
