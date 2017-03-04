@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using Windows.Devices.Bluetooth;
@@ -83,6 +84,51 @@ namespace ConsoleApplication2
 
         static void Main(string[] args)
         {
+            // TODO: check for correct argument structure
+            
+
+            // Flag checking
+            if (args.Length > 0 && args[0].Contains('-') && Regex.IsMatch(args[0], "^-[agmtjb]*$"))
+            {
+                String flags = args[0];
+                Console.WriteLine("past regex");
+                // Accelerometer
+                if (flags.Contains('a'))
+                {
+                    
+                }
+
+                // Gyroscope
+                if (flags.Contains('g'))
+                {
+                    
+                }
+
+                // Magnetometer
+                if (flags.Contains('m'))
+                {
+                    
+                }
+
+                // Time
+                if (flags.Contains('t'))
+                {
+                    
+                }
+
+                // Joystick
+                if (flags.Contains('j'))
+                {
+                    
+                }
+
+                // Buttons
+                if (flags.Contains('b'))
+                {
+                    
+                }
+            }
+
             BLE();
 
             Console.Read();
