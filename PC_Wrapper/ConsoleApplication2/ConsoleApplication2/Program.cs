@@ -12,7 +12,7 @@ namespace ConsoleApplication2
     {
         async static void BLE()
         {
-
+            GattReadResult result = null;
             BluetoothLEDevice device = await BluetoothLEDevice.FromBluetoothAddressAsync(000000000001);
             Console.WriteLine(device);
 
@@ -24,22 +24,51 @@ namespace ConsoleApplication2
             Guid ServiceId = new Guid("00000000-0000-1000-8000-00805f9b34fb");
             GattDeviceService services = device.GetGattService(ServiceId);
 
-            foreach (var i in services.GetAllCharacteristics())
+            while (true)
             {
-                if (i.Uuid != ServiceId) { 
-                    Console.WriteLine(i.Uuid);
-                    Console.WriteLine(i.UserDescription);
-                    GattReadResult result = await i.ReadValueAsync(BluetoothCacheMode.Cached);
+                foreach (var i in services.GetAllCharacteristics())
+                {
+                    /*
+                    if (i.Uuid != ServiceId) { 
+                        Console.WriteLine(i.Uuid);
+                        Console.WriteLine(i.UserDescription);
+                        result = await i.ReadValueAsync(BluetoothCacheMode.Uncached);
 
-                    //Console.WriteLine(result.Value);
-                    Console.WriteLine(string.Format("{0}", result.Value));
-                    
-                    foreach (char j in result.Value.Capacity.ToString())
+                        //Console.WriteLine(result.Value);
+                        Console.WriteLine(string.Format("{0}", result.Value));
+
+                        var dataReader = Windows.Storage.Streams.DataReader.FromBuffer(result.Value);
+                        var output = dataReader.ReadString(result.Value.Length);
+                        Console.WriteLine(output);
+                    */
+
+                    if (i.Uuid == new Guid("03000000-0000-0000-0000-000000000000"))
                     {
-                        Console.WriteLine(string.Format("{0}", j));
+                        try
+                        {
+                            result = await i.ReadValueAsync(BluetoothCacheMode.Uncached);
+                            if (result.Status == GattCommunicationStatus.Success)
+                            {
+                                var dataReader = Windows.Storage.Streams.DataReader.FromBuffer(result.Value);
+                                var output = dataReader.ReadString(result.Value.Length);
+                                Console.WriteLine(output);
+                            }
+                            else
+                            {
+                                Console.WriteLine("GattReadResult is unreachable");
+                            }
+                        }
+
+                        catch (System.ArgumentException e)
+                        {
+                            Console.WriteLine(e);
+                        }
+                        
                     }
                 }
             }
+
+            
         }
 
         static void Main(string[] args)
