@@ -13,22 +13,22 @@ namespace ConsoleApplication2
     class Program
     {
         // GUID/UUID definitions
-        Guid accel_x_guid = new Guid("01100000-0000-0000-0000-000000000000");
-        Guid accel_y_guid = new Guid("01200000-0000-0000-0000-000000000000");
-        Guid accel_z_guid = new Guid("01300000-0000-0000-0000-000000000000");
+        static string accel_x_guid = new Guid("01100000-0000-0000-0000-000000000000").ToString();
+        static string accel_y_guid = new Guid("01200000-0000-0000-0000-000000000000").ToString();
+        string accel_z_guid = new Guid("01300000-0000-0000-0000-000000000000").ToString();
 
-        Guid gyro_x_guid = new Guid("02100000-0000-0000-0000-000000000000");
-        Guid gyro_y_guid = new Guid("02200000-0000-0000-0000-000000000000");
-        Guid gyro_z_guid = new Guid("02300000-0000-0000-0000-000000000000");
+        string gyro_x_guid = new Guid("02100000-0000-0000-0000-000000000000").ToString();
+        string gyro_y_guid = new Guid("02200000-0000-0000-0000-000000000000").ToString();
+        string gyro_z_guid = new Guid("02300000-0000-0000-0000-000000000000").ToString();
 
-        Guid mag_x_guid = new Guid("03100000-0000-0000-0000-000000000000");
-        Guid mag_y_guid = new Guid("03200000-0000-0000-0000-000000000000");
-        Guid mag_z_guid = new Guid("03300000-0000-0000-0000-000000000000");
+        string mag_x_guid = new Guid("03100000-0000-0000-0000-000000000000").ToString();
+        string mag_y_guid = new Guid("03200000-0000-0000-0000-000000000000").ToString();
+        string mag_z_guid = new Guid("03300000-0000-0000-0000-000000000000").ToString();
 
-        Guid joy_x_guid = new Guid("04100000-0000-0000-0000-000000000000");
-        Guid joy_y_guid = new Guid("04200000-0000-0000-0000-000000000000");
+        string joy_x_guid = new Guid("04100000-0000-0000-0000-000000000000").ToString();
+        string joy_y_guid = new Guid("04200000-0000-0000-0000-000000000000").ToString();
 
-        Guid butt_guid = new Guid("05000000-0000-0000-0000-000000000000");
+        string butt_guid = new Guid("05000000-0000-0000-0000-000000000000").ToString();
 
         async static void BLE()
         {
@@ -63,6 +63,48 @@ namespace ConsoleApplication2
                         Console.WriteLine(output);
                     */
 
+
+                    switch(i.Uuid.ToString())
+                    {
+                        case "01100000-0000-0000-0000-000000000000":
+                            break;
+
+                        case "01200000-0000-0000-0000-000000000000":
+                            break;
+
+                        case "01300000-0000-0000-0000-000000000000":
+                            break;
+
+                        case "02100000-0000-0000-0000-000000000000":
+                            break;
+
+                        case "02200000-0000-0000-0000-000000000000":
+                            break;
+
+                        case "02300000-0000-0000-0000-000000000000":
+                            break;
+
+                        case "03100000-0000-0000-0000-000000000000":
+                            break;
+
+                        case "03200000-0000-0000-0000-000000000000":
+                            break;
+
+                        case "03300000-0000-0000-0000-000000000000":
+                            break;
+
+                        case "04100000-0000-0000-0000-000000000000":
+                            break;
+
+                        case "04200000-0000-0000-0000-000000000000":
+                            break;
+
+                        case "05000000-0000-0000-0000-000000000000":
+                            break;
+
+                        default:
+                            break;
+                    }
 
 
                     if (i.Uuid == new Guid("04000000-0000-0000-0000-000000000000"))
