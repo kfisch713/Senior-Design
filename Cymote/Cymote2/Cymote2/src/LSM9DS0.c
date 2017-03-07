@@ -355,6 +355,22 @@ void init_magnetometer_scale(m_scale scale)
 }
 
 /*
+ * Read raw magnetometer data.
+ */
+void get_raw_magnetometer(uint16_t *output)
+{
+	uint8_t temp[6];
+	
+	/* Read data from all magnetometer output registers. */
+	am_read_bytes(OUT_X_L_M, temp, 6);
+	
+	/* Store it into various variables. */
+	output[0] = (temp[1] << 8) | temp[0]; /* X */
+	output[1] = (temp[3] << 8) | temp[2]; /* Y */
+	output[2] = (temp[5] << 8) | temp[4]; /* Z */
+}
+
+/*
  * Read and print raw magnetometer data.
  */
 void print_raw_magnetometer()
@@ -422,6 +438,22 @@ void init_gyroscope_scale(g_scale scale)
 
 	/* Write back to the CTRL_REG6_XM register. */
 	g_write(CTRL_REG4_G, temp);
+}
+
+/*
+ * Read raw gyroscope data.
+ */
+void get_raw_gyroscope(uint16_t *output)
+{
+	uint8_t temp[6];
+	
+	/* Read data from all gyroscope output registers. */
+	am_read_bytes(OUT_X_L_G, temp, 6);
+	
+	/* Store it into various variables. */
+	output[0] = (temp[1] << 8) | temp[0]; /* X */
+	output[1] = (temp[3] << 8) | temp[2]; /* Y */
+	output[2] = (temp[5] << 8) | temp[4]; /* Z */
 }
 
 /*
