@@ -101,10 +101,15 @@ namespace ConsoleApplication2
         static void Main(string[] args)
         {
             // TODO: check for correct argument structure
-            
 
             // Flag checking
-            if (args.Length > 0 && args[0].Contains('-') && Regex.IsMatch(args[0], "^-[agmtjb]*$"))
+            // a - acceelrometer
+            // g - gyroscope
+            // m - magnetometer
+            // t - time
+            // j - joystick
+            // b - buttons
+            if (args.Length > 0 && Regex.IsMatch(args[0], "^-[agmtjb]*$"))
             {
                 String flags = args[0];
 
@@ -143,6 +148,9 @@ namespace ConsoleApplication2
                 {
                     
                 }
+            } else
+            {
+                Console.WriteLine("Usage: explore.exe -[agmtjb]");
             }
 
             BLE();

@@ -218,7 +218,7 @@ void init_magnetometer_scale(m_scale scale);
 /*
  * Read and print raw magnetometer data.
  */
-void print_raw_magnetometer(void);
+void get_raw_magnetometer(uint16_t *output);
 
 /**************************************************************************************/
 /***********  Magnetometer register initiation and other such nonsense. ***************/

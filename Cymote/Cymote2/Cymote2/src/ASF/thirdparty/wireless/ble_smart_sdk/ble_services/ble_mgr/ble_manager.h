@@ -185,7 +185,7 @@
 
 /** @brief default device name */
 #ifndef BLE_DEVICE_NAME
-#define BLE_DEVICE_NAME				"Cymote Beta"
+#define BLE_DEVICE_NAME				"ATMEL-BLE"
 #endif
 
 #define GAP_HANDLE_FUNC_MAX 19
@@ -224,7 +224,7 @@ typedef enum ble_ulp_mode {
 typedef at_ble_status_t (*ble_event_callback_t) (void *params);
 
 /** @brief event timeout */
-#define BLE_EVENT_TIMEOUT                       (0X0000FFFF)
+#define BLE_EVENT_TIMEOUT                       (0XFFFFFFFF)
 
 /** @brief Observer related declarations */
 #define LE_LIMITED_DISCOVERABLE_MODE  ((uint8_t) 1 << 0)
@@ -247,7 +247,7 @@ typedef at_ble_status_t (*ble_event_callback_t) (void *params);
 #endif
 
 #ifndef BLE_PAIR_ENABLE
-#define BLE_PAIR_ENABLE					(false)
+#define BLE_PAIR_ENABLE					(true)
 #endif
 
 #ifndef	BLE_AUTHENTICATION_LEVEL
