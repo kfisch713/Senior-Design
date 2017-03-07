@@ -12,6 +12,7 @@ namespace ConsoleApplication2
 {
     class Program
     {
+
         async static void BLE()
         {
             GattReadResult result = null;
@@ -45,7 +46,49 @@ namespace ConsoleApplication2
                         Console.WriteLine(output);
                     */
 
-                    
+
+                    switch(i.Uuid.ToString())
+                    {
+                        case "01100000-0000-0000-0000-000000000000":
+                            break;
+
+                        case "01200000-0000-0000-0000-000000000000":
+                            break;
+
+                        case "01300000-0000-0000-0000-000000000000":
+                            break;
+
+                        case "02100000-0000-0000-0000-000000000000":
+                            break;
+
+                        case "02200000-0000-0000-0000-000000000000":
+                            break;
+
+                        case "02300000-0000-0000-0000-000000000000":
+                            break;
+
+                        case "03100000-0000-0000-0000-000000000000":
+                            break;
+
+                        case "03200000-0000-0000-0000-000000000000":
+                            break;
+
+                        case "03300000-0000-0000-0000-000000000000":
+                            break;
+
+                        case "04100000-0000-0000-0000-000000000000":
+                            break;
+
+                        case "04200000-0000-0000-0000-000000000000":
+                            break;
+
+                        case "05000000-0000-0000-0000-000000000000":
+                            break;
+
+                        default:
+                            break;
+                    }
+
 
                     if (i.Uuid == new Guid("04000000-0000-0000-0000-000000000000"))
                     {
@@ -59,8 +102,8 @@ namespace ConsoleApplication2
                                 var dataReader = Windows.Storage.Streams.DataReader.FromBuffer(result.Value);
                                 var output = dataReader.ReadString(result.Value.Length);
                                 //Console.WriteLine(String.Format("raw output: {0}", output));
-                                Int16 data = (Int16) UInt16.Parse(output);
-                                Console.WriteLine(data * (6.0/32768.0));
+                                Int16 data = (Int16)UInt16.Parse(output);
+                                Console.WriteLine(data * (6.0 / 32768.0));
                                 stopwatch.Stop();
                                 //Console.WriteLine(stopwatch.ElapsedMilliseconds);
                             }
@@ -78,20 +121,23 @@ namespace ConsoleApplication2
                     }
                 }
             }
-
-            
         }
 
         static void Main(string[] args)
         {
             // TODO: check for correct argument structure
-            
 
             // Flag checking
-            if (args.Length > 0 && args[0].Contains('-') && Regex.IsMatch(args[0], "^-[agmtjb]*$"))
+            // a - acceelrometer
+            // g - gyroscope
+            // m - magnetometer
+            // t - time
+            // j - joystick
+            // b - buttons
+            if (args.Length > 0 && Regex.IsMatch(args[0], "^-[agmtjb]*$"))
             {
                 String flags = args[0];
-                Console.WriteLine("past regex");
+
                 // Accelerometer
                 if (flags.Contains('a'))
                 {
@@ -127,6 +173,9 @@ namespace ConsoleApplication2
                 {
                     
                 }
+            } else
+            {
+                Console.WriteLine("Usage: explore.exe -[agmtjb]");
             }
 
             BLE();

@@ -357,7 +357,7 @@ void init_magnetometer_scale(m_scale scale)
 /*
  * Read and print raw magnetometer data.
  */
-void print_raw_magnetometer()
+void get_raw_magnetometer(uint16_t *output)
 {
 	uint8_t temp[6];
 	
@@ -365,11 +365,9 @@ void print_raw_magnetometer()
 	am_read_bytes(OUT_X_L_M, temp, 6);
 	
 	/* Store it into various variables. */
-	uint16_t mx = (temp[1] << 8) | temp[0];
-	uint16_t my = (temp[3] << 8) | temp[2];
-	uint16_t mz = (temp[5] << 8) | temp[4];
-	
-	printf("mX: %d, mY: %d, mZ: %d\r\n", mx, my, mz);
+	output[0] = (temp[1] << 8) | temp[0]; /* X */
+	output[1] = (temp[3] << 8) | temp[2]; /* Y */
+	output[2] = (temp[5] << 8) | temp[4]; /* Z */
 }
 
 /**************************************************************************************/
@@ -439,7 +437,7 @@ void print_raw_gyroscope()
 	uint16_t gy = (temp[3] << 8) | temp[2];
 	uint16_t gz = (temp[5] << 8) | temp[4];
 	
-	printf("gX: %d, gY: %d, gZ: %d\r\n", gx, gy, gz);
+	printf("gX: %d\t gY: %d\t gZ: %d\r\n", gx, gy, gz);
 }
 
 /**************************************************************************************/
