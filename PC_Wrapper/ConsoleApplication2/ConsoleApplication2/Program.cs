@@ -12,6 +12,24 @@ namespace ConsoleApplication2
 {
     class Program
     {
+        // GUID/UUID definitions
+        Guid accel_x_guid = new Guid("01100000-0000-0000-0000-000000000000");
+        Guid accel_y_guid = new Guid("01200000-0000-0000-0000-000000000000");
+        Guid accel_z_guid = new Guid("01300000-0000-0000-0000-000000000000");
+
+        Guid gyro_x_guid = new Guid("02100000-0000-0000-0000-000000000000");
+        Guid gyro_y_guid = new Guid("02200000-0000-0000-0000-000000000000");
+        Guid gyro_z_guid = new Guid("02300000-0000-0000-0000-000000000000");
+
+        Guid mag_x_guid = new Guid("03100000-0000-0000-0000-000000000000");
+        Guid mag_y_guid = new Guid("03200000-0000-0000-0000-000000000000");
+        Guid mag_z_guid = new Guid("03300000-0000-0000-0000-000000000000");
+
+        Guid joy_x_guid = new Guid("04100000-0000-0000-0000-000000000000");
+        Guid joy_y_guid = new Guid("04200000-0000-0000-0000-000000000000");
+
+        Guid butt_guid = new Guid("05000000-0000-0000-0000-000000000000");
+
         async static void BLE()
         {
             GattReadResult result = null;
@@ -45,7 +63,7 @@ namespace ConsoleApplication2
                         Console.WriteLine(output);
                     */
 
-                    
+
 
                     if (i.Uuid == new Guid("04000000-0000-0000-0000-000000000000"))
                     {
@@ -59,8 +77,8 @@ namespace ConsoleApplication2
                                 var dataReader = Windows.Storage.Streams.DataReader.FromBuffer(result.Value);
                                 var output = dataReader.ReadString(result.Value.Length);
                                 //Console.WriteLine(String.Format("raw output: {0}", output));
-                                Int16 data = (Int16) UInt16.Parse(output);
-                                Console.WriteLine(data * (6.0/32768.0));
+                                Int16 data = (Int16)UInt16.Parse(output);
+                                Console.WriteLine(data * (6.0 / 32768.0));
                                 stopwatch.Stop();
                                 //Console.WriteLine(stopwatch.ElapsedMilliseconds);
                             }
@@ -78,8 +96,6 @@ namespace ConsoleApplication2
                     }
                 }
             }
-
-            
         }
 
         static void Main(string[] args)
@@ -91,7 +107,7 @@ namespace ConsoleApplication2
             if (args.Length > 0 && args[0].Contains('-') && Regex.IsMatch(args[0], "^-[agmtjb]*$"))
             {
                 String flags = args[0];
-                Console.WriteLine("past regex");
+
                 // Accelerometer
                 if (flags.Contains('a'))
                 {
