@@ -12,23 +12,6 @@ namespace ConsoleApplication2
 {
     class Program
     {
-        // GUID/UUID definitions
-        static string accel_x_guid = new Guid("01100000-0000-0000-0000-000000000000").ToString();
-        static string accel_y_guid = new Guid("01200000-0000-0000-0000-000000000000").ToString();
-        string accel_z_guid = new Guid("01300000-0000-0000-0000-000000000000").ToString();
-
-        string gyro_x_guid = new Guid("02100000-0000-0000-0000-000000000000").ToString();
-        string gyro_y_guid = new Guid("02200000-0000-0000-0000-000000000000").ToString();
-        string gyro_z_guid = new Guid("02300000-0000-0000-0000-000000000000").ToString();
-
-        string mag_x_guid = new Guid("03100000-0000-0000-0000-000000000000").ToString();
-        string mag_y_guid = new Guid("03200000-0000-0000-0000-000000000000").ToString();
-        string mag_z_guid = new Guid("03300000-0000-0000-0000-000000000000").ToString();
-
-        string joy_x_guid = new Guid("04100000-0000-0000-0000-000000000000").ToString();
-        string joy_y_guid = new Guid("04200000-0000-0000-0000-000000000000").ToString();
-
-        string butt_guid = new Guid("05000000-0000-0000-0000-000000000000").ToString();
 
         async static void BLE()
         {
