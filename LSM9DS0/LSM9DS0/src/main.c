@@ -50,9 +50,14 @@ int main(void)
 	while (1)
 	{
 		uint16_t accelerometer_data[3];
+		uint16_t magnetometer_data[3];
 		
 		get_raw_accelerometer(accelerometer_data);
+		get_raw_magnetometer(magnetometer_data);
 		
-		printf("aX: %d, aY: %d, aZ: %d\r\n", accelerometer_data[0], accelerometer_data[1], accelerometer_data[2]);
+		//printf("aX: %5d\t aY: %5d\t aZ: %5d\r\n", accelerometer_data[0], accelerometer_data[1], accelerometer_data[2]);
+		printf("aX: %5d\t aY: %5d\t aZ: %5d\t mX: %5d\t mY: %5d\t mZ: %5d\r\n", accelerometer_data[0], accelerometer_data[1], accelerometer_data[2], magnetometer_data[0], magnetometer_data[1], magnetometer_data[2]);
+		//print_raw_magnetometer();
+		//print_raw_gyroscope();
 	}
 }
