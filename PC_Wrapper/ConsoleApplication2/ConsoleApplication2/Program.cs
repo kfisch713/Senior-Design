@@ -12,12 +12,27 @@ namespace ConsoleApplication2
 {
     class Program
     {
+        static string accel_x = "";
+        static string accel_y = "";
+        static string accel_z = "";
+         
+        static string gyro_x = "";
+        static string gyro_y = "";
+        static string gyro_z = "";
+         
+        static string mag_x = "";
+        static string mag_y = "";
+        static string mag_z = "";
+         
+        static string joy_x = "";
+        static string joy_y = "";
+         
+        static string buttons = "";
 
         async static void BLE()
         {
             GattReadResult result = null;
             BluetoothLEDevice device = await BluetoothLEDevice.FromBluetoothAddressAsync(000000000001);
-            Stopwatch stopwatch = new Stopwatch();
             Console.WriteLine(device);
 
             foreach (GattDeviceService i in device.GattServices)
@@ -30,94 +45,81 @@ namespace ConsoleApplication2
 
             while (true)
             {
-                foreach (var i in services.GetAllCharacteristics())
+                foreach (var gc in services.GetAllCharacteristics())
                 {
-                    /*
-                    if (i.Uuid != ServiceId) { 
-                        Console.WriteLine(i.Uuid);
-                        Console.WriteLine(i.UserDescription);
-                        result = await i.ReadValueAsync(BluetoothCacheMode.Uncached);
+                    string output = "";
 
-                        //Console.WriteLine(result.Value);
-                        Console.WriteLine(string.Format("{0}", result.Value));
-
-                        var dataReader = Windows.Storage.Streams.DataReader.FromBuffer(result.Value);
-                        var output = dataReader.ReadString(result.Value.Length);
-                        Console.WriteLine(output);
-                    */
-
-
-                    switch(i.Uuid.ToString())
+                    if (gc.Uuid != ServiceId)
                     {
+                        result = await gc.ReadValueAsync(BluetoothCacheMode.Uncached);
+                        var dataReader = Windows.Storage.Streams.DataReader.FromBuffer(result.Value);
+                        output = dataReader.ReadString(result.Value.Length);
+                    }
+
+                    switch (gc.Uuid.ToString())
+                    {
+                        // Accel X
                         case "01100000-0000-0000-0000-000000000000":
+                            accel_x = output;
                             break;
 
+                        // Accel Y
                         case "01200000-0000-0000-0000-000000000000":
+                            accel_y = output;
                             break;
 
+                        // Accel Z
                         case "01300000-0000-0000-0000-000000000000":
+                            accel_z = output;
                             break;
 
+                        // Gyro X
                         case "02100000-0000-0000-0000-000000000000":
+                            gyro_x = output;
                             break;
-
+                        
+                        // Gyro Y
                         case "02200000-0000-0000-0000-000000000000":
+                            gyro_y = output;
                             break;
 
+                        // Gyro Z
                         case "02300000-0000-0000-0000-000000000000":
+                            gyro_z = output;
                             break;
 
+                        // Mag X
                         case "03100000-0000-0000-0000-000000000000":
+                            mag_x = output;
                             break;
 
+                        // Mag Y
                         case "03200000-0000-0000-0000-000000000000":
+                            mag_y = output;
                             break;
 
+                        // Mag Z
                         case "03300000-0000-0000-0000-000000000000":
+                            mag_z = output;
                             break;
 
+                        // Joystick X
                         case "04100000-0000-0000-0000-000000000000":
+                            joy_x = output;
                             break;
 
+                        // Joystick Y
                         case "04200000-0000-0000-0000-000000000000":
+                            joy_y = output;
                             break;
 
+                        // Buttons
                         case "05000000-0000-0000-0000-000000000000":
+                            buttons = output;
                             break;
 
                         default:
                             break;
-                    }
-
-
-                    if (i.Uuid == new Guid("04000000-0000-0000-0000-000000000000"))
-                    {
-                        try
-                        {
-                            stopwatch.Reset();
-                            stopwatch.Start();
-                            result = await i.ReadValueAsync(BluetoothCacheMode.Uncached);
-                            if (result.Status == GattCommunicationStatus.Success)
-                            {
-                                var dataReader = Windows.Storage.Streams.DataReader.FromBuffer(result.Value);
-                                var output = dataReader.ReadString(result.Value.Length);
-                                //Console.WriteLine(String.Format("raw output: {0}", output));
-                                Int16 data = (Int16)UInt16.Parse(output);
-                                Console.WriteLine(data * (6.0 / 32768.0));
-                                stopwatch.Stop();
-                                //Console.WriteLine(stopwatch.ElapsedMilliseconds);
-                            }
-                            else
-                            {
-                                Console.WriteLine("GattReadResult is unreachable");
-                            }
-                        }
-
-                        catch (System.ArgumentException e)
-                        {
-                            Console.WriteLine(e);
-                        }
-
                     }
                 }
             }
@@ -136,12 +138,18 @@ namespace ConsoleApplication2
             // b - buttons
             if (args.Length > 0 && Regex.IsMatch(args[0], "^-[agmtjb]*$"))
             {
-                String flags = args[0];
+                string flags = args[0];
 
                 // Accelerometer
                 if (flags.Contains('a'))
                 {
-                    
+                    // Accelerometer calculator
+                    Int16 data_x = (Int16)UInt16.Parse(accel_x);
+                    Int16 data_y = (Int16)UInt16.Parse(accel_y);
+                    Int16 data_z = (Int16)UInt16.Parse(accel_z);
+
+
+                    //Console.WriteLine(data * (6.0 / 32768.0));
                 }
 
                 // Gyroscope
