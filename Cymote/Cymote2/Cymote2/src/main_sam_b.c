@@ -64,17 +64,16 @@
 cymote_service_handler_t cymote_service_handler;
 at_ble_handle_t cymote_connection_handle;
 struct uart_module console_instance;
-uint8_t dummy_data_counter = 0;
-uint8_t dummy_data_counter_old = 0;
-uint8_t dummy_data_2_state = 0;
-uint8_t dummy_data[] = {'A', 'B', 'C', 'D', 'E', 'a'};
 uint16_t accelerometer_data[3];
+uint16_t gyroscope_data[3];
+uint16_t magnetometer_data[3];
+uint16_t joystick_data[2];
+uint8_t  buttons;
 
 /* timer callback function */
 static void timer_callback_fn(void)
 {
 	/* Add timer callback functionality here */
-	dummy_data_2_state = 1;
 
 	//This breaks out of waiting for a BLE event
 	send_plf_int_msg_ind(USER_TIMER_CALLBACK, TIMER_EXPIRED_CALLBACK_TYPE_DETECT, NULL, 0);
@@ -84,14 +83,6 @@ static void timer_callback_fn(void)
 static void button_cb(void)
 {
 	/* Add button callback functionality here */
-	
-	//sizeof(dummy_data) is the size of the array. If the counter is counting outside the array, reset it to 0
-	if (dummy_data_counter >= (unsigned int)(sizeof(dummy_data)/sizeof(dummy_data[0])-1) ){
-		dummy_data_counter = 0;
-	}
-	else dummy_data_counter++;
-	
-	dummy_data_2_state = 1;
 	
 	//This breaks out of waiting for a BLE event
 	send_plf_int_msg_ind(USER_TIMER_CALLBACK, TIMER_EXPIRED_CALLBACK_TYPE_DETECT, NULL, 0);
@@ -137,9 +128,15 @@ static const ble_event_callback_t cymote_app_gap_cb[] = {
 int main(void)
 {
 	at_ble_status_t status;
-	cymote_info_data newData;
-	uint16_t result;
-	uint16_t result2;
+	cymote_info_data newDataX, newDataY, newDataZ;
+	char newAccelX[ACCEL_MAX_LEN], newAccelY[ACCEL_MAX_LEN], newAccelZ[ACCEL_MAX_LEN];
+	char newGyroX[GYRO_MAX_LEN], newGyroY[GYRO_MAX_LEN], newGyroZ[GYRO_MAX_LEN];
+	char newMagnetX[MAGNET_MAX_LEN], newMagnetY[MAGNET_MAX_LEN], newMagnetZ[MAGNET_MAX_LEN];
+	char newJoystickX[JOYSTICK_MAX_LEN], newJoystickY[JOYSTICK_MAX_LEN], newButtons[BUTTONS_MAX_LEN];
+
+	uint16_t valueX, valueY, valueZ;
+	uint8_t lenX, lenY, lenZ;
+
 
     /* Initialize the SAM system */
 	
@@ -154,7 +151,7 @@ int main(void)
 	/* Hardware timer. */
 	hw_timer_init();
 	hw_timer_register_callback(timer_callback_fn);
-	//hw_timer_start(BLE_UPDATE_INTERVAL);
+	hw_timer_start(BLE_UPDATE_INTERVAL);
 	
 	/* Button initialization. */
 	gpio_init();
@@ -222,26 +219,73 @@ int main(void)
 			ble_event_task(BLE_EVENT_TIMEOUT);
 		
 			/* Update BLE data */
-			if (dummy_data_counter != dummy_data_counter_old){
-				newData.data_len = 1;
-				newData.info_data = dummy_data + dummy_data_counter;
-				printf("data.info_data: %d\r\n", *(newData.info_data));
-				UPDATE_DUMMY_DATA(&cymote_service_handler, &newData, cymote_connection_handle);
-				dummy_data_counter_old = dummy_data_counter;
-			}
-			
-			if (dummy_data_2_state != 0){
-				dummy_data_2_state = 0;
-			
-				char newValue[DUMMY_DATA_2_MAX_LEN];
-				int value = rand() % 1000;
-				uint8_t len = snprintf(newValue, DUMMY_DATA_2_MAX_LEN, "%d", value);
-				printf("newValue: %s\r\n", newValue);
-			
-				newData.info_data = (uint8_t*)newValue;
-				newData.data_len = len;
-				UPDATE_DUMMY_DATA_2(&cymote_service_handler, &newData, cymote_connection_handle);
-			}
+			get_raw_accelerometer(accelerometer_data);
+			get_raw_gyroscope(gyroscope_data);
+			get_raw_magnetometer(magnetometer_data);
+			//get_button_data(buttons);
+
+			//accelerometer
+			valueX = accelerometer_data[0];
+			valueY = accelerometer_data[1];
+			valueZ = accelerometer_data[2];
+			lenX = snprintf(newAccelX, ACCEL_MAX_LEN, "%d", valueX);
+			lenY = snprintf(newAccelY, ACCEL_MAX_LEN, "%d", valueY);
+			lenZ = snprintf(newAccelZ, ACCEL_MAX_LEN, "%d", valueZ);
+			newDataX.info_data = (uint8_t*)newAccelX;
+			newDataX.data_len = lenX;
+			newDataY.info_data = (uint8_t*)newAccelY;
+			newDataY.data_len = lenY;
+			newDataZ.info_data = (uint8_t*)newAccelZ;
+			newDataZ.data_len = lenZ;
+			UPDATE_ACCEL(&cymote_service_handler, &newDataX, &newDataY, &newDataZ, cymote_connection_handle);
+
+			//gyroscope
+			valueX = gyroscope_data[0];
+			valueY = gyroscope_data[1];
+			valueZ = gyroscope_data[2];
+			lenX = snprintf(newGyroX, GYRO_MAX_LEN, "%d", valueX);
+			lenY = snprintf(newGyroY, GYRO_MAX_LEN, "%d", valueY);
+			lenZ = snprintf(newGyroZ, GYRO_MAX_LEN, "%d", valueZ);
+			newDataX.info_data = (uint8_t*)newGyroX;
+			newDataX.data_len = lenX;
+			newDataY.info_data = (uint8_t*)newGyroY;
+			newDataY.data_len = lenY;
+			newDataZ.info_data = (uint8_t*)newGyroZ;
+			newDataZ.data_len = lenZ;
+			UPDATE_GYRO(&cymote_service_handler, &newDataX, &newDataY, &newDataZ, cymote_connection_handle);
+
+			//magnetometer
+			valueX = magnetometer_data[0];
+			valueY = magnetometer_data[1];
+			valueZ = magnetometer_data[2];
+			lenX = snprintf(newMagnetX, MAGNET_MAX_LEN, "%d", valueX);
+			lenY = snprintf(newMagnetY, MAGNET_MAX_LEN, "%d", valueY);
+			lenZ = snprintf(newMagnetZ, MAGNET_MAX_LEN, "%d", valueZ);
+			newDataX.info_data = (uint8_t*)newMagnetX;
+			newDataX.data_len = lenX;
+			newDataY.info_data = (uint8_t*)newMagnetY;
+			newDataY.data_len = lenY;
+			newDataZ.info_data = (uint8_t*)newMagnetZ;
+			newDataZ.data_len = lenZ;
+			UPDATE_MAGNET(&cymote_service_handler, &newDataX, &newDataY, &newDataZ, cymote_connection_handle);
+
+			//joystick
+			valueX = joystick_data[0];
+			valueY = joystick_data[1];
+			lenX = snprintf(newJoystickX, JOYSTICK_MAX_LEN, "%d", valueX);
+			lenY = snprintf(newJoystickY, JOYSTICK_MAX_LEN, "%d", valueY);
+			newDataX.info_data = (uint8_t*)newMagnetX;
+			newDataX.data_len = lenX;
+			newDataY.info_data = (uint8_t*)newMagnetY;
+			newDataY.data_len = lenY;
+			UPDATE_JOYSTICK(&cymote_service_handler, &newDataX, &newDataY, cymote_connection_handle);
+
+			//buttons
+			valueZ = buttons;
+			lenZ = snprintf(newButtons, BUTTONS_MAX_LEN, "%d", valueZ);
+			newDataZ.info_data = (uint8_t*)newButtons;
+			newDataZ.data_len = lenZ;
+			UPDATE_BUTTONS(&cymote_service_handler, &newDataZ, cymote_connection_handle);
 		}
 		
 		/*
@@ -266,18 +310,7 @@ int main(void)
 		configure_pwm_from_duty_pin_11(result2 / 11);
 		*/
 
-		/* Print accelerometer data */
-		get_raw_accelerometer(accelerometer_data);
-
 		
-		char newValue[ACCEL_X_MAX_LEN];
-		uint16_t value = accelerometer_data[0];
-		uint8_t len = snprintf(newValue, ACCEL_X_MAX_LEN, "%d", value);
-		printf("Accel X data: %s, len=%d\r\n", newValue, len);
-		
-		newData.info_data = (uint8_t*)newValue;
-		newData.data_len = len;
-		UPDATE_ACCEL_X(&cymote_service_handler, &newData, cymote_connection_handle);
 
 		/*
 		value = (uint8_t)(accelerometer_data[0] & 0x00FF);

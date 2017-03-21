@@ -216,6 +216,11 @@ void init_magnetometer_odr(m_odr rate);
 void init_magnetometer_scale(m_scale scale);
 
 /*
+ * Read raw magnetometer data.
+ */
+void get_raw_magnetometer(uint16_t *output);
+
+/*
  * Read and print raw magnetometer data.
  */
 void print_raw_magnetometer(void);
@@ -238,6 +243,11 @@ void init_gyroscope_odr(g_odr rate);
  * Set the scale for the data from the gyroscope.
  */
 void init_gyroscope_scale(g_scale scale);
+
+/*
+ * Read raw gyroscope data.
+ */
+void get_raw_gyroscope(uint16_t *output);
 
 /*
  * Read and print raw gyroscope data.
