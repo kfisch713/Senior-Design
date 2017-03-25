@@ -29,6 +29,8 @@ namespace ConsoleApplication2
          
         static string buttons = "";
 
+        static long time = 0;
+
         async static void BLE()
         {
             GattReadResult result = null;
@@ -127,7 +129,18 @@ namespace ConsoleApplication2
 
         static void Main(string[] args)
         {
+            // Variable to keep track of time since program execution
+            // (This is when the party of the wrapper starts)
+            Stopwatch party = new Stopwatch();
+            party.Start();
+
+            // Start the BLE polling
+            BLE();
+
+
             // TODO: check for correct argument structure
+
+            // TODO: selectively pull only the data we request
 
             // Flag checking
             // a - acceelrometer
@@ -139,14 +152,21 @@ namespace ConsoleApplication2
             if (args.Length > 0 && Regex.IsMatch(args[0], "^-[agmtjb]*$"))
             {
                 string flags = args[0];
+                // Time | Accel | Gyro | Mag | Butts | Joy
+
+                // Time
+                if (flags.Contains('t'))
+                {
+                    time = party.ElapsedMilliseconds;
+                }
 
                 // Accelerometer
                 if (flags.Contains('a'))
                 {
                     // Accelerometer calculator
-                    Int16 data_x = (Int16)UInt16.Parse(accel_x);
-                    Int16 data_y = (Int16)UInt16.Parse(accel_y);
-                    Int16 data_z = (Int16)UInt16.Parse(accel_z);
+                    short data_x = (short)ushort.Parse(accel_x);
+                    short data_y = (short)ushort.Parse(accel_y);
+                    short data_z = (short)ushort.Parse(accel_z);
 
 
                     //Console.WriteLine(data * (6.0 / 32768.0));
@@ -163,11 +183,11 @@ namespace ConsoleApplication2
                 {
                     
                 }
-
-                // Time
-                if (flags.Contains('t'))
+                
+                // Buttons
+                if (flags.Contains('b'))
                 {
-                    
+
                 }
 
                 // Joystick
@@ -175,19 +195,12 @@ namespace ConsoleApplication2
                 {
                     
                 }
-
-                // Buttons
-                if (flags.Contains('b'))
-                {
-                    
-                }
+                
             } else
             {
                 Console.WriteLine("Usage: explore.exe -[agmtjb]");
             }
-
-            BLE();
-
+            
             Console.Read();
         }
     }
