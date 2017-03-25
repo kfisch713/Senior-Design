@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using Windows.Devices.Bluetooth;
@@ -12,22 +13,22 @@ namespace ConsoleApplication2
 {
     class Program
     {
-        static volatile string accel_x = "";
-        static volatile string accel_y = "";
-        static volatile string accel_z = "";
+        static volatile string accel_x = "0";
+        static volatile string accel_y = "0";
+        static volatile string accel_z = "0";
                
-        static volatile string gyro_x = "";
-        static volatile string gyro_y = "";
-        static volatile string gyro_z = "";
+        static volatile string gyro_x = "0";
+        static volatile string gyro_y = "0";
+        static volatile string gyro_z = "0";
                
-        static volatile string mag_x = "";
-        static volatile string mag_y = "";
-        static volatile string mag_z = "";
+        static volatile string mag_x = "0";
+        static volatile string mag_y = "0";
+        static volatile string mag_z = "0";
                
-        static volatile string joy_x = "";
-        static volatile string joy_y = "";
+        static volatile string joy_x = "0";
+        static volatile string joy_y = "0";
                
-        static volatile string buttons = "";
+        static volatile string buttons = "00000";
                
         static long time = 0;
 
@@ -35,6 +36,7 @@ namespace ConsoleApplication2
         {
             GattReadResult result = null;
             BluetoothLEDevice device = await BluetoothLEDevice.FromBluetoothAddressAsync(000000000001);
+            
             Console.WriteLine(device);
 
             foreach (GattDeviceService i in device.GattServices)
@@ -137,10 +139,9 @@ namespace ConsoleApplication2
             // Start the BLE polling
             BLE();
 
-
             // TODO: check for correct argument structure
 
-            // TODO: selectively pull only the data we request
+            // TODO: (maybe) selectively pull only the data we request
 
             // Flag checking
             // a - acceelrometer
@@ -153,47 +154,76 @@ namespace ConsoleApplication2
             {
                 string flags = args[0];
                 // Time | Accel | Gyro | Mag | Butts | Joy
-
-                // Time
-                if (flags.Contains('t'))
-                {
-                    time = party.ElapsedMilliseconds;
-                }
-
-                // Accelerometer
-                if (flags.Contains('a'))
-                {
-                    // Accelerometer calculator
-                    short data_x = (short)ushort.Parse(accel_x);
-                    short data_y = (short)ushort.Parse(accel_y);
-                    short data_z = (short)ushort.Parse(accel_z);
-
-
-                    //Console.WriteLine(data * (6.0 / 32768.0));
-                }
-
-                // Gyroscope
-                if (flags.Contains('g'))
-                {
-                    
-                }
-
-                // Magnetometer
-                if (flags.Contains('m'))
-                {
-                    
-                }
                 
-                // Buttons
-                if (flags.Contains('b'))
+                // Polling loop for data
+                while (true)
                 {
+                    string output = "";
+                    StringBuilder sb = new StringBuilder(output);
 
-                }
+                    // Time
+                    if (flags.Contains('t'))
+                    {
+                        time = party.ElapsedMilliseconds;
+                        sb.Append(time + ", ");
+                    }
 
-                // Joystick
-                if (flags.Contains('j'))
-                {
+                    // Accelerometer
+                    if (flags.Contains('a'))
+                    {
+                        // Accelerometer calculation
+                        double data_x = (short)ushort.Parse(accel_x) * (6.0 / 32768.0);
+                        double data_y = (short)ushort.Parse(accel_y) * (6.0 / 32768.0);
+                        double data_z = (short)ushort.Parse(accel_z) * (6.0 / 32768.0);
+
+                        sb.Append(data_x + ", ");
+                        sb.Append(data_y + ", ");
+                        sb.Append(data_z + ", ");
+                    }
+
+                    // Gyroscope
+                    if (flags.Contains('g'))
+                    {
+                        double data_x = (short)ushort.Parse(gyro_x);
+                        double data_y = (short)ushort.Parse(gyro_y);
+                        double data_z = (short)ushort.Parse(gyro_z);
+
+                        sb.Append(data_x + ", ");
+                        sb.Append(data_y + ", ");
+                        sb.Append(data_z + ", ");
+                    }
+
+                    // Magnetometer
+                    if (flags.Contains('m'))
+                    {
+                        double data_x = (short)ushort.Parse(mag_x);
+                        double data_y = (short)ushort.Parse(mag_y);
+                        double data_z = (short)ushort.Parse(mag_z);
+
+                        sb.Append(data_x + ", ");
+                        sb.Append(data_y + ", ");
+                        sb.Append(data_z + ", ");
+                    }
+
+                    // Buttons
+                    if (flags.Contains('b'))
+                    {
+                        // Button order: TBD by Kyle
+                        for (int i = 0; i < 5; i++)
+                        {
+                            sb.Append(buttons[i] + ", ");
+                        }
+                    }
+
+                    // Joystick
+                    if (flags.Contains('j'))
+                    {
+                        sb.Append(joy_x + ", ");
+                        sb.Append(joy_y + ", ");
+                    }
                     
+                    Console.WriteLine(sb.ToString().Substring(0, sb.ToString().Length - 2));
+                    Thread.Sleep(10);
                 }
                 
             } else
@@ -201,7 +231,8 @@ namespace ConsoleApplication2
                 Console.WriteLine("Usage: explore.exe -[agmtjb]");
             }
             
-            Console.Read();
+            // Uncomment this to hang the console after execution
+            //Console.Read();
         }
     }
 }
