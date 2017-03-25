@@ -34,7 +34,7 @@
 
 #define ACCEL_MAX_LEN       (0x0f)
 #define ACCEL_LEN           (0x03)
-#define ACCEL_DEFAULT       ("000")
+#define ACCEL_DEFAULT       ("123")
 #define GYRO_MAX_LEN        ACCEL_MAX_LEN
 #define GYRO_LEN            ACCEL_LEN
 #define GYRO_DEFAULT        ACCEL_DEFAULT
@@ -172,7 +172,7 @@ typedef struct{
 
 /* Prototypes */
 void cymote_init_service(cymote_service_handler_t* cymote_service);
-at_ble_status_t cymote_primary_service_define(cymote_service_handler_t *cymote_primary_service);
+at_ble_status_t cymote_primary_service_define(cymote_service_handler_t *cymote_primary_service, at_ble_handle_t *chr_handle);
 at_ble_status_t cymote_info_update(cymote_service_handler_t *cymote_serv , cymote_info_type info_type, cymote_info_data* info_data, at_ble_handle_t conn_handle);
 at_ble_status_t device_information_advertise(void);
 at_ble_status_t ble_paired_app_event(void *param);
