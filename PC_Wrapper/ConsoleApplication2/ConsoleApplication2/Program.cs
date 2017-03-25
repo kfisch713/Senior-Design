@@ -32,19 +32,21 @@ namespace ConsoleApplication2
                
         static long time = 0;
 
-        async static void BLE()
+        async static Task BLE()
         {
             GattReadResult result = null;
             BluetoothLEDevice device = await BluetoothLEDevice.FromBluetoothAddressAsync(000000000001);
             
-            Console.WriteLine(device);
+            Console.WriteLine(device.Name);
 
-            foreach (GattDeviceService i in device.GattServices)
-            {
-                Console.WriteLine(i.GetAllIncludedServices());
-            }
+            //foreach (GattDeviceService i in device.GattServices)
+            //{
+            //    Console.WriteLine(i.GetAllIncludedServices());
+            //}
 
-            Guid ServiceId = new Guid("00000000-0000-1000-8000-00805f9b34fb");
+            //Guid ServiceId = new Guid("00000000-0000-1000-8000-00805f9b34fb");
+
+            Guid ServiceId = new Guid("00000000-0000-0000-0000-000000000000");
             GattDeviceService services = device.GetGattService(ServiceId);
 
             while (true)
@@ -58,6 +60,7 @@ namespace ConsoleApplication2
                         result = await gc.ReadValueAsync(BluetoothCacheMode.Uncached);
                         var dataReader = Windows.Storage.Streams.DataReader.FromBuffer(result.Value);
                         output = dataReader.ReadString(result.Value.Length);
+                        Console.WriteLine(output);
                     }
 
                     switch (gc.Uuid.ToString())
@@ -137,7 +140,18 @@ namespace ConsoleApplication2
             party.Start();
 
             // Start the BLE polling
-            BLE();
+            try
+            {
+                Task.Run(async () =>
+                {
+                    await BLE();
+                }).GetAwaiter().GetResult();
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("A Bluetooth-related error has occured. Please check that the Bluetooth device is properly connected.");
+                return;
+            }
 
             // TODO: check for correct argument structure
 
@@ -150,6 +164,7 @@ namespace ConsoleApplication2
             // t - time
             // j - joystick
             // b - buttons
+
             if (args.Length > 0 && Regex.IsMatch(args[0], "^-[agmtjb]*$"))
             {
                 string flags = args[0];
@@ -222,17 +237,20 @@ namespace ConsoleApplication2
                         sb.Append(joy_y + ", ");
                     }
                     
+                    // Print the output string with the trailing comma cut off
                     Console.WriteLine(sb.ToString().Substring(0, sb.ToString().Length - 2));
-                    Thread.Sleep(10);
+
+                    // Edit this depending on the output rate of BLE
+                    Thread.Sleep(100);
                 }
                 
             } else
             {
                 Console.WriteLine("Usage: explore.exe -[agmtjb]");
             }
-            
+
             // Uncomment this to hang the console after execution
-            //Console.Read();
+            Console.Read();
         }
     }
 }
