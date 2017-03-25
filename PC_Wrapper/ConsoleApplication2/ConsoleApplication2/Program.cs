@@ -12,23 +12,23 @@ namespace ConsoleApplication2
 {
     class Program
     {
-        static string accel_x = "";
-        static string accel_y = "";
-        static string accel_z = "";
-         
-        static string gyro_x = "";
-        static string gyro_y = "";
-        static string gyro_z = "";
-         
-        static string mag_x = "";
-        static string mag_y = "";
-        static string mag_z = "";
-         
-        static string joy_x = "";
-        static string joy_y = "";
-         
-        static string buttons = "";
-
+        static volatile string accel_x = "";
+        static volatile string accel_y = "";
+        static volatile string accel_z = "";
+               
+        static volatile string gyro_x = "";
+        static volatile string gyro_y = "";
+        static volatile string gyro_z = "";
+               
+        static volatile string mag_x = "";
+        static volatile string mag_y = "";
+        static volatile string mag_z = "";
+               
+        static volatile string joy_x = "";
+        static volatile string joy_y = "";
+               
+        static volatile string buttons = "";
+               
         static long time = 0;
 
         async static void BLE()
