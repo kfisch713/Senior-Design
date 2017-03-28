@@ -13,17 +13,11 @@
 #define READ            0x80
 #define MULTIPLE_READ   0xC0
 #define WHO_AM_I_XM     0x0f
-#define OUT_X_L_A       0x28
-#define OUT_X_H_A       0x29
-#define OUT_Y_L_A       0x2A
-#define OUT_Y_H_A       0x2B
-#define OUT_Z_L_A       0x2C
-#define OUT_Z_H_A       0x2D
 #define FIFO_CTRL_REG   0x2E
-#define CTRL_REG0_XM    0x1f
-#define CTRL_REG1_XM    0x20
-#define CTRL_REG2_XM    0x21
-#define CTRL_REG3_XM    0x22
+#define CTRL_REG5_XL    0x1F
+#define CTRL_REG6_XL    0x20
+#define CTRL_REG7_XL    0x21
+#define OUT_X_L_XL      0x28
 #define FIFO_SRC_REG    0x2F
 
 class LSM9DS0{
@@ -67,9 +61,6 @@ class LSM9DS0{
       A_ODR_1600    /* 1600 Hz         (1010) */
     };
 
-    /* Set the output data rate for the accelerometer. */
-    void init_accelerometer_odr(a_odr rate);
-
     /* All possible scale values for the accelerometer. */
     enum a_scale {
       A_SCALE_2G,  /* 2G  (000) */
@@ -78,9 +69,6 @@ class LSM9DS0{
       A_SCALE_8G,  /* 8G  (011) */
       A_SCALE_16G, /* 16G (100) */
     };
-
-    /* Set the scale for the accelerometer. */
-    void init_accelerometer_scale(a_scale scale);
 
   private:
     int SS_PIN;
