@@ -7,7 +7,7 @@
 
  #include "BLE.h"
 
- cymote_characteristic_value_t characteristic_value;
+cymote_characteristic_value_t characteristic_value;
  const uint8_t CYMOTE_SERVICE_UUID[16] = {0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0, 0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0};
  //{0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0, 0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0};
 
@@ -477,6 +477,219 @@
 	 *chr_handle = cymote_service.char_list[0].char_val.handle;
 	 return(status_of_service_define);
  }
+
+ /* Initialize a service and return handles to its characteristics so they can be updated. */
+ at_ble_status_t cymote_service_init(at_ble_service_t *cymote_service, cymote_characteristic_handle_t *cymote_handles){
+	int i;
+	at_ble_status_t status = AT_BLE_FAILURE;
+	at_ble_uuid_t service_uuid;
+	at_ble_uuid_t characteristic_uuids[MAX_NUM_CHARACTERISTICS];
+	at_ble_chr_t characteristics[MAX_NUM_CHARACTERISTICS];
+	at_ble_char_val_t characteristic_values[MAX_NUM_CHARACTERISTICS];
+	at_ble_user_desc_t characteristic_description[MAX_NUM_CHARACTERISTICS];
+	at_ble_char_presentation_t *characteristic_presentation = NULL;
+	at_ble_server_config_desc_t client_config[MAX_NUM_CHARACTERISTICS];
+	at_ble_server_config_desc_t server_config[MAX_NUM_CHARACTERISTICS];
+	
+	/* an array of descriptions in needed for the function. This implementation has NUMBER_ATTRIBUTE_DESCRIPTIONS 
+	 * for each characteristic.
+	 */
+	at_ble_generic_att_desc_t attribute_descriptions[MAX_NUM_CHARACTERISTICS][NUMBER_ATTRIBUTE_DESCRIPTIONS];
+
+	
+	//setup the characteristic uuids
+	characteristic_uuid_init(characteristic_uuids);
+	DBG_LOG("made it past characteristic uuid init");
+
+	for(i=0;i<MAX_NUM_CHARACTERISTICS;i++){
+		characteristic_values[i].init_value = 00000000;
+		characteristic_values[i].len = 8;
+		characteristic_values[i].permissions = AT_BLE_ATTR_READABLE_NO_AUTHN_NO_AUTHR;
+		characteristic_values[i].properties = AT_BLE_CHAR_READ;
+		characteristic_values[i].uuid = characteristic_uuids[i];
+	}
+	DBG_LOG("made it past characteristic value loop");
+	
+	//initializes the characteristic descriptions
+	characteristic_description_init(characteristic_description);
+	DBG_LOG("made it past characteristic description init");
+	fflush(stdout);
+	
+	//initialized to null. change it here if needed.
+	//characteristic_presentation = NULL;
+
+	for(i=0;i<MAX_NUM_CHARACTERISTICS;i++){
+		client_config[i].perm = AT_BLE_ATTR_READABLE_NO_AUTHN_NO_AUTHR;
+		server_config[i].perm = AT_BLE_ATTR_READABLE_NO_AUTHN_NO_AUTHR;
+	}
+	DBG_LOG("made it past server and client config");
+
+	//initialize attribute descriptions
+	characteristic_attribute_descriptions_init(attribute_descriptions);
+	DBG_LOG("made it past characteristic attribute descriptions init");
+	
+	//assign characteristics their properties
+	for(i=0;i<MAX_NUM_CHARACTERISTICS;i++){
+		characteristics[i].char_val = characteristic_values[i];
+		characteristics[i].user_desc = characteristic_description[i];
+		characteristics[i].presentation_format = characteristic_presentation;
+		characteristics[i].client_config_desc = client_config[i];
+		characteristics[i].server_config_desc = server_config[i];
+		characteristics[i].additional_desc_list = attribute_descriptions[i];
+		characteristics[i].additional_desc_count = NUMBER_ATTRIBUTE_DESCRIPTIONS;
+	}
+	DBG_LOG("made it past assigning characteristics their properties");
+
+
+	//setup the service uuid
+	service_uuid.type=AT_BLE_UUID_128;
+	for(i=0;i<16;i++){
+		service_uuid.uuid[i] = CYMOTE_SERVICE_UUID[i];
+	}
+	DBG_LOG("made it past service uuid init");
+
+	/* wrap everything into the service */
+	cymote_service->type	       = PRIMARY_SERVICE;
+	cymote_service->uuid           = service_uuid;
+	cymote_service->perm	       = AT_BLE_ATTR_READABLE_NO_AUTHN_NO_AUTHR;
+	cymote_service->inc_list       = NULL;    //no secondary services included
+	cymote_service->included_count = 0;       //no secondary services included
+	cymote_service->char_list      = characteristics;
+	cymote_service->char_count     = MAX_NUM_CHARACTERISTICS;
+	DBG_LOG("made it past wrapping service");
+
+	status = at_ble_service_define(cymote_service);
+	DBG_LOG("made it past service define");
+
+	//assign the address of the handles so characteristics can be updated
+	cymote_handles->accel_x_handle    = cymote_service->char_list[0].char_val.handle;
+	cymote_handles->accel_y_handle    = cymote_service->char_list[1].char_val.handle;
+	cymote_handles->accel_z_handle    = cymote_service->char_list[2].char_val.handle;
+	cymote_handles->gyro_x_handle     = cymote_service->char_list[3].char_val.handle;
+	cymote_handles->gyro_y_handle     = cymote_service->char_list[4].char_val.handle;
+	cymote_handles->gyro_z_handle     = cymote_service->char_list[5].char_val.handle;
+	cymote_handles->magnet_x_handle   = cymote_service->char_list[6].char_val.handle;
+	cymote_handles->magnet_y_handle   = cymote_service->char_list[7].char_val.handle;
+	cymote_handles->magnet_z_handle   = cymote_service->char_list[8].char_val.handle;
+	cymote_handles->joystick_x_handle = cymote_service->char_list[9].char_val.handle;
+	cymote_handles->joystick_y_handle = cymote_service->char_list[10].char_val.handle;
+	cymote_handles->buttons_handle    = cymote_service->char_list[11].char_val.handle;
+	DBG_LOG("made it past saving characteristic handles");
+
+
+	return status;
+ }
+
+ /* Add the service to the profile */ 
+ at_ble_status_t cymote_service_define(at_ble_service_t *service){
+	at_ble_status_t status_of_service_define = at_ble_service_define(service);
+	return status_of_service_define;
+ }
+
+ /* Initializes all of the characteristic UUIDs */
+ void characteristic_uuid_init(at_ble_uuid_t characteristic_uuids[MAX_NUM_CHARACTERISTICS]){
+	int i;
+	
+	for(i=0;i<MAX_NUM_CHARACTERISTICS;i++){
+		//DBG_LOG("Loop1: %d", i);
+		characteristic_uuids[i].type = AT_BLE_UUID_128;
+	}
+
+	for(i=0;i<16;i++){
+		//DBG_LOG("Loop2: %d", i);
+		characteristic_uuids[0].uuid[i] = ACCEL_X_UUID[i];
+		characteristic_uuids[1].uuid[i] = ACCEL_Y_UUID[i];
+		characteristic_uuids[2].uuid[i] = ACCEL_Z_UUID[i];
+		characteristic_uuids[3].uuid[i] = GYRO_X_UUID[i];
+		characteristic_uuids[4].uuid[i] = GYRO_Y_UUID[i];
+		characteristic_uuids[5].uuid[i] = GYRO_Z_UUID[i];
+		characteristic_uuids[6].uuid[i] = MAGNET_X_UUID[i];
+		characteristic_uuids[7].uuid[i] = MAGNET_Y_UUID[i];
+		characteristic_uuids[8].uuid[i] = MAGNET_Z_UUID[i];
+		characteristic_uuids[9].uuid[i] = JOYSTICK_X_UUID[i];
+		characteristic_uuids[10].uuid[i] = JOYSTICK_Y_UUID[i];
+		characteristic_uuids[11].uuid[i] = BUTTONS_UUID[i];
+	}
+ }
+
+ /* Initializes the characteristic description list */
+ void characteristic_description_init(at_ble_user_desc_t characteristic_descriptions[MAX_NUM_CHARACTERISTICS]){
+	int i;
+
+	const char* desc[MAX_NUM_CHARACTERISTICS] = {"Acceleration X",
+											     "Acceleration Y",
+											     "Acceleration Z",
+											     "Gyroscope X",
+											     "Gyroscope Y",
+											     "Gyroscope Z",
+											     "Magnetometer X",
+											     "Magnetometer Y",
+											     "Magnetometer Z",
+											     "Joystick X",
+											     "Joystick Y",
+											     "Buttons"};
+
+	for(i=0;i<MAX_NUM_CHARACTERISTICS;i++){
+		DBG_LOG("Iteration: %d", i);
+		characteristic_descriptions[i].user_description = (uint8_t*)desc[i];
+		characteristic_descriptions[i].permissions = AT_BLE_ATTR_READABLE_NO_AUTHN_NO_AUTHR;
+		characteristic_descriptions[i].len = strlen(desc[i]);
+		DBG_LOG("%s, %d", desc[i], strlen(desc[i]));
+	}
+	DBG_LOG("out of loop");
+
+	return;
+
+ }
+
+/* Initializes the characteristic attribute descriptions. */
+void characteristic_attribute_descriptions_init(at_ble_generic_att_desc_t descriptions[MAX_NUM_CHARACTERISTICS][NUMBER_ATTRIBUTE_DESCRIPTIONS]){
+	int i, j;
+	for(i=0;i<MAX_NUM_CHARACTERISTICS;i++){
+		for(j=0;j<NUMBER_ATTRIBUTE_DESCRIPTIONS;j++){
+			//arbitrary number. I just made it up. I don't know what it does.
+			descriptions[i][j].desc_val_length = 15;
+			descriptions[i][j].perm = AT_BLE_ATTR_READABLE_NO_AUTHN_NO_AUTHR;
+		}
+	}
+
+	//Use the data UUID but adding in a 1
+	for(i=0;i<NUMBER_ATTRIBUTE_DESCRIPTIONS;i++){
+		for(j=0;j<16;j++){
+			descriptions[0][i].uuid.uuid[j] = ACCEL_X_UUID[j];
+			descriptions[1][i].uuid.uuid[j] = ACCEL_Y_UUID[j];
+			descriptions[2][i].uuid.uuid[j] = ACCEL_Z_UUID[j];
+			descriptions[3][i].uuid.uuid[j] = GYRO_X_UUID[j];
+			descriptions[4][i].uuid.uuid[j] = GYRO_Y_UUID[j];
+			descriptions[5][i].uuid.uuid[j] = GYRO_Z_UUID[j];
+			descriptions[6][i].uuid.uuid[j] = MAGNET_X_UUID[j];
+			descriptions[7][i].uuid.uuid[j] = MAGNET_Y_UUID[j];
+			descriptions[8][i].uuid.uuid[j] = MAGNET_Z_UUID[j];
+			descriptions[9][i].uuid.uuid[j] = JOYSTICK_X_UUID[j];
+			descriptions[10][i].uuid.uuid[j] = JOYSTICK_Y_UUID[j];
+			descriptions[11][i].uuid.uuid[j] = BUTTONS_UUID[j];
+		}
+		descriptions[0][i].uuid.type = AT_BLE_UUID_128;
+		descriptions[1][i].uuid.type = AT_BLE_UUID_128;
+		descriptions[2][i].uuid.type = AT_BLE_UUID_128;
+		descriptions[3][i].uuid.type = AT_BLE_UUID_128;
+		descriptions[4][i].uuid.type = AT_BLE_UUID_128;
+		descriptions[5][i].uuid.type = AT_BLE_UUID_128;
+		descriptions[6][i].uuid.type = AT_BLE_UUID_128;
+		descriptions[7][i].uuid.type = AT_BLE_UUID_128;
+		descriptions[8][i].uuid.type = AT_BLE_UUID_128;
+		descriptions[9][i].uuid.type = AT_BLE_UUID_128;
+		descriptions[10][i].uuid.type = AT_BLE_UUID_128;
+		descriptions[11][i].uuid.type = AT_BLE_UUID_128;
+	}
+	for(i=0;i<MAX_NUM_CHARACTERISTICS;i++){
+		for(j=0;j<NUMBER_ATTRIBUTE_DESCRIPTIONS;j++){
+		descriptions[i][j].uuid.uuid[13] = 0x10;
+		}
+	}
+	
+}
+
 
  /* Update the cymote characteristic value after defining the services using cymote_primary_service_define */
  at_ble_status_t cymote_info_update(cymote_service_handler_t *cymote_serv , cymote_info_type info_type, cymote_info_data* info_data, at_ble_handle_t conn_handle)

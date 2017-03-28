@@ -133,7 +133,8 @@ int main(void)
 	char newGyroX[GYRO_MAX_LEN], newGyroY[GYRO_MAX_LEN], newGyroZ[GYRO_MAX_LEN];
 	char newMagnetX[MAGNET_MAX_LEN], newMagnetY[MAGNET_MAX_LEN], newMagnetZ[MAGNET_MAX_LEN];
 	char newJoystickX[JOYSTICK_MAX_LEN], newJoystickY[JOYSTICK_MAX_LEN], newButtons[BUTTONS_MAX_LEN];
-	at_ble_handle_t chr_handle;
+	at_ble_service_t cymote_service;
+	cymote_characteristic_handle_t cymote_handles;
 
 	uint16_t valueX, valueY, valueZ;
 	uint8_t lenX, lenY, lenZ;
@@ -194,12 +195,23 @@ int main(void)
 		for(i = 0; i < AT_BLE_ADDR_LEN; i++){
 			addr.addr[i] = 0;
 		}
-		addr.addr[0] = 1;
+		addr.addr[0] = 3;
 		ble_device_init(&addr);
+		DBG_LOG("made it past ble device init");
 
+		/*
+		// old way
 		cymote_init_service(&cymote_service_handler);
 		if((status = cymote_primary_service_define(&cymote_service_handler, &chr_handle)) != AT_BLE_SUCCESS){
 			DBG_LOG("Device Information Service definition failed,reason %x",status);
+		}
+		*/
+
+		if((status = cymote_service_init(&cymote_service, &cymote_handles)) != AT_BLE_SUCCESS){
+			DBG_LOG("Service definition failed,reason %x",status);
+		}
+		else {
+			DBG_LOG("Service definition success");
 		}
 
 		device_information_advertise();
@@ -242,7 +254,18 @@ int main(void)
 			joystick_data[1] = 24;
 			buttons = 2;
 			
-			at_ble_characteristic_value_set(chr_handle, "lol", 3);
+			at_ble_characteristic_value_set(cymote_handles.accel_x_handle, "lol", 3);
+			at_ble_characteristic_value_set(cymote_handles.accel_y_handle, "JK", 2);
+			at_ble_characteristic_value_set(cymote_handles.accel_z_handle, "accelerometer_data[2]", 5);
+			at_ble_characteristic_value_set(cymote_handles.gyro_x_handle, "lol", 3);
+			at_ble_characteristic_value_set(cymote_handles.gyro_y_handle, "lol", 3);
+			at_ble_characteristic_value_set(cymote_handles.gyro_z_handle, "lol", 3);
+			at_ble_characteristic_value_set(cymote_handles.magnet_x_handle, "lol", 3);
+			at_ble_characteristic_value_set(cymote_handles.magnet_y_handle, "lol", 3);
+			at_ble_characteristic_value_set(cymote_handles.magnet_z_handle, "lol", 3);
+			at_ble_characteristic_value_set(cymote_handles.joystick_x_handle, "lol", 3);
+			at_ble_characteristic_value_set(cymote_handles.joystick_y_handle, "lol", 3);
+			at_ble_characteristic_value_set(cymote_handles.buttons_handle, "00000000", 8);
 
 			/*
 			//accelerometer

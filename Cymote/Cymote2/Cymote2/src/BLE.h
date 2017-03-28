@@ -31,6 +31,9 @@
 /* number of cymote service characteristics. See cymote_characteristic_value_t */
 #define MAX_NUM_CHARACTERISTICS 12
 
+/* Number of attribute descriptions. Used in initializing characteristics. */
+#define NUMBER_ATTRIBUTE_DESCRIPTIONS 1
+
 
 #define ACCEL_MAX_LEN       (0x0f)
 #define ACCEL_LEN           (0x03)
@@ -108,6 +111,21 @@ typedef struct{
 	uint8_t *info_data;
 }cymote_info_data;
 
+typedef struct{
+	at_ble_handle_t accel_x_handle;
+	at_ble_handle_t accel_y_handle;
+	at_ble_handle_t accel_z_handle;
+	at_ble_handle_t gyro_x_handle;
+	at_ble_handle_t gyro_y_handle;
+	at_ble_handle_t gyro_z_handle;
+	at_ble_handle_t magnet_x_handle;
+	at_ble_handle_t magnet_y_handle;
+	at_ble_handle_t magnet_z_handle;
+	at_ble_handle_t joystick_x_handle;
+	at_ble_handle_t joystick_y_handle;
+	at_ble_handle_t buttons_handle;
+} cymote_characteristic_handle_t;
+
 /************** Macros **************/
 
 /* Macro used for updating all three axes of the accelerometer after defining the service using cymote_primary_service_define*/
@@ -178,6 +196,12 @@ at_ble_status_t device_information_advertise(void);
 at_ble_status_t ble_paired_app_event(void *param);
 at_ble_status_t ble_disconnected_app_event(void *param);
 at_ble_status_t ble_connected_app_event(void *param);
+
+at_ble_status_t cymote_service_init(at_ble_service_t *cymote_service, cymote_characteristic_handle_t *cymote_handles);
+at_ble_status_t cymote_service_define(at_ble_service_t *service);
+void characteristic_uuid_init(at_ble_uuid_t characteristic_uuids[MAX_NUM_CHARACTERISTICS]);
+void characteristic_description_init(at_ble_user_desc_t characteristic_descriptions[MAX_NUM_CHARACTERISTICS]);
+void characteristic_attribute_descriptions_init(at_ble_generic_att_desc_t descriptions[MAX_NUM_CHARACTERISTICS][NUMBER_ATTRIBUTE_DESCRIPTIONS]);
 
 
 
