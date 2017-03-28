@@ -31,11 +31,18 @@ int main(void)
 		
 	/* Initialize accelerometer control registers.*/
 	init_accelerometer();
+	
+	/* Initialize gyroscope control registers. */
+	init_gyroscope();
 
 	while (1)
 	{
 		//uint16_t accelerometer_data[3];
 		//get_raw_accelerometer(accelerometer_data);
-		//printf("aX: %5d\t aY: %5d\t aZ: %5d\r\n", accelerometer_data[0], accelerometer_data[1], accelerometer_data[2]);	
+		//printf("aX: %5d\t aY: %5d\t aZ: %5d\r\n", accelerometer_data[0], accelerometer_data[1], accelerometer_data[2]);
+		
+		uint16_t gyroscope_data[3];
+		get_raw_gyroscope(gyroscope_data);
+		printf("gX: %5d\t gY: %5d\t gZ: %5d\r\n", gyroscope_data[0], gyroscope_data[1], gyroscope_data[2]);
 	}
 }

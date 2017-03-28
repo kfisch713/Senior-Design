@@ -10,11 +10,17 @@
 #define LSM9DS1_H_
 
 #define READ            0x80
-#define MULTIPLE_READ   0xC0	
+#define MULTIPLE_READ   0xC0
+#define CTRL_REG1_G		0x10
+#define CTRL_REG2_G		0x11
+#define CTRL_REG3_G		0x12
+#define ORIENT_CFG_G	0x13
+#define CTRL_REG4		0x1E
 #define CTRL_REG5_XL	0x1F
 #define CTRL_REG6_XL	0x20
 #define CTRL_REG7_XL	0x21
 #define OUT_X_L_XL		0x28
+#define OUT_X_L_G		0x18
 #define WHO_AM_I_XM     0x0f
 
 #define AG_SSC_PIN  PIN_LP_GPIO_12 /* EXT1 15 CSXM  */
@@ -85,6 +91,9 @@ uint8_t bit_write_high(uint8_t data, uint8_t bit);
  */
 uint8_t bit_read(uint8_t data, uint8_t bit);
 
+/**************************************************************************************/
+/***********  Accelerometer register initiation and other such nonsense. **************/
+/**************************************************************************************/
 
 /*
  * Initialize data transfer registers for accelerometer output.
@@ -95,6 +104,20 @@ void init_accelerometer(void);
  * Read and print raw accelerometer data.
  */
 void get_raw_accelerometer(uint16_t *output);
+
+/**************************************************************************************/
+/************  Gyroscope register initiation and other such nonsense. *****************/
+/**************************************************************************************/
+
+/*
+ * Initialize data transfer registers for gyroscope output.
+ */
+void init_gyroscope(void);
+
+/*
+ * Read and print raw gyroscope data.
+ */
+void get_raw_gyroscope(uint16_t* output);
 
 /*
  *  Configure UART console.

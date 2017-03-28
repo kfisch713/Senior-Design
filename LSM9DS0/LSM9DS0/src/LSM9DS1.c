@@ -256,6 +256,60 @@ void get_raw_accelerometer(uint16_t *output)
 }
 
 /**************************************************************************************/
+/************  Gyroscope register initiation and other such nonsense. *****************/
+/**************************************************************************************/
+
+/*
+ * Initialize data transfer registers for gyroscope output.
+ */
+void init_gyroscope()
+{
+	/* Sample Rate   952hz  (110) */
+	/* Scale         245dps (00)  */
+	/* Default zero         (0)   */
+	/* Bandwidth     33hz   (00)  */
+	ag_write(CTRL_REG1_G, 0b11000000);
+	
+	/* Default zeros       (0000) */
+	/* Interrupt select    (00)   */
+	/* Output select       (00)   */
+	ag_write(CTRL_REG2_G, 0b00000000);
+	
+	/* Low power off       (0)    */
+	/* High pass off       (0)    */
+	/* Default zeros       (00)   */
+	/* High pass off       (000)  */
+	ag_write(CTRL_REG3_G, 0b00000000);
+	
+	/* Default zeros       (00)   */
+	/* Enable all axis     (111)  */
+	/* Default zero        (0)    */
+	/* Interrupts not used (00)   */
+	ag_write(CTRL_REG4, 0b00111000);
+	
+	/* Default zeros       (00)   */
+	/* Positive signs      (000)  */
+	/* Orient              (000)  */
+	ag_write(ORIENT_CFG_G, 0b00000000);
+}
+
+/*
+ * Read and print raw gyroscope data.
+ */
+void get_raw_gyroscope(uint16_t* output)
+{
+	uint8_t temp[6];
+	
+	/* Read data from all accelerometer output registers. */
+	ag_read_bytes(OUT_X_L_G, temp, 6);
+	
+	/* Store it into various variables. */
+	output[0] = (temp[1] << 8) | temp[0]; /* X */
+	output[1] = (temp[3] << 8) | temp[2]; /* Y */
+	output[2] = (temp[5] << 8) | temp[4]; /* Z */
+}
+
+/**************************************************************************************/
 /******************  Register initiation and other such nonsense. *********************/
 /**************************************************************************************/
 

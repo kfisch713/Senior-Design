@@ -227,7 +227,7 @@ void get_raw_magnetometer(uint16_t *output);
 /*
  * Initialize data transfer registers for gyroscope output.
  */
-void init_gyroscope(void);
+void init_gyroscope_0(void);
 
 /*
  * Set the output data rate for the gyroscope.
