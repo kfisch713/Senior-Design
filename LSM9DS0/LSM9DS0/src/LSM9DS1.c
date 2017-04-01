@@ -226,9 +226,9 @@ void init_accelerometer()
 	ag_write(CTRL_REG5_XL, 0b00111000);
 	
 	/* Sample Rate   952hz  (110) */
-	/* Scale		 2g     (00)  */
+	/* Scale		 8g     (11)  */
 	/* Bandwidth	 408hz	(000) */
-	ag_write(CTRL_REG6_XL, 0b11000000);
+	ag_write(CTRL_REG6_XL, 0b11011000);
 	
 	/* High res off         (0)   */
 	/* High res BW off		(00)  */

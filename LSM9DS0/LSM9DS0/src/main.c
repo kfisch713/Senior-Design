@@ -11,6 +11,16 @@
    GND     EXT1 19   GND       Black
 */
 
+/*
+	Top to Bottom
+	CS_AG	White	EXT1 15
+	MOSI	Blue	EXT1 16
+	MISO	Green	EXT1 17
+	SCLK	Purple	EXT1 18
+	GND		Gray	EXT1 19
+	VCC		Orange	EXT1 20
+*/
+
 #include <asf.h>
 #include <LSM9DS1.h>
 
@@ -33,16 +43,16 @@ int main(void)
 	init_accelerometer();
 	
 	/* Initialize gyroscope control registers. */
-	init_gyroscope();
+	//init_gyroscope();
 
 	while (1)
 	{
-		//uint16_t accelerometer_data[3];
-		//get_raw_accelerometer(accelerometer_data);
-		//printf("aX: %5d\t aY: %5d\t aZ: %5d\r\n", accelerometer_data[0], accelerometer_data[1], accelerometer_data[2]);
+		uint16_t accelerometer_data[3];
+		get_raw_accelerometer(accelerometer_data);
+		printf("aX: %5d\t aY: %5d\t aZ: %5d\r\n", accelerometer_data[0], accelerometer_data[1], accelerometer_data[2]);
 		
-		uint16_t gyroscope_data[3];
-		get_raw_gyroscope(gyroscope_data);
-		printf("gX: %5d\t gY: %5d\t gZ: %5d\r\n", gyroscope_data[0], gyroscope_data[1], gyroscope_data[2]);
+		//uint16_t gyroscope_data[3];
+		//get_raw_gyroscope(gyroscope_data);
+		//printf("gX: %5d\t gY: %5d\t gZ: %5d\r\n", gyroscope_data[0], gyroscope_data[1], gyroscope_data[2]);
 	}
 }
