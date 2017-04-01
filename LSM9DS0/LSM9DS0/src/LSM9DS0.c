@@ -18,7 +18,7 @@ uint8_t am_transfer(uint8_t data) {
 	for(int i = 0; i < 8; i++) {
 		gpio_pin_set_output_level(AM_SCK_PIN, LOW);
 		
-		if(bit_read(data, 7-i) > 0x00) {
+		if(bit_read_0(data, 7-i) > 0x00) {
 			gpio_pin_set_output_level(AM_MOSI_PIN, HIGH);
 			} else {
 			gpio_pin_set_output_level(AM_MOSI_PIN, LOW);
@@ -27,7 +27,7 @@ uint8_t am_transfer(uint8_t data) {
 		gpio_pin_set_output_level(AM_SCK_PIN, HIGH);
 		
 		if(gpio_pin_get_input_level(AM_MISO_PIN) == HIGH) {
-			receive = bit_write_high(receive, 7-i);
+			receive = bit_write_high_0(receive, 7-i);
 		}
 	}
 	return receive;
@@ -42,7 +42,7 @@ uint8_t g_transfer(uint8_t data) {
 	for(int i = 0; i < 8; i++) {
 		gpio_pin_set_output_level(G_SCK_PIN, LOW);
 		
-		if(bit_read(data, 7-i) > 0x00) {
+		if(bit_read_0(data, 7-i) > 0x00) {
 			gpio_pin_set_output_level(G_MOSI_PIN, HIGH);
 			} else {
 			gpio_pin_set_output_level(G_MOSI_PIN, LOW);
@@ -51,7 +51,7 @@ uint8_t g_transfer(uint8_t data) {
 		gpio_pin_set_output_level(G_SCK_PIN, HIGH);
 		
 		if(gpio_pin_get_input_level(G_MISO_PIN) == HIGH) {
-			receive = bit_write_high(receive, 7-i);
+			receive = bit_write_high_0(receive, 7-i);
 		}
 	}
 	return receive;
@@ -191,7 +191,7 @@ void g_read_bytes(uint8_t address, uint8_t* data, uint8_t count)
  *  Writes a high value to the bit corresponding with uint8_t bit.
  *  The bits are ordered from right to left, zero indexed.
  */
-uint8_t bit_write_high(uint8_t data, uint8_t bit)
+uint8_t bit_write_high_0(uint8_t data, uint8_t bit)
 {
 	return data | (0b00000001 << bit);
 }
@@ -200,7 +200,7 @@ uint8_t bit_write_high(uint8_t data, uint8_t bit)
  *  Reads the bit value corresponding with uint8_t bit.
  *  This bits are ordered from right to left, zero indexed.
  */
-uint8_t bit_read(uint8_t data, uint8_t bit)
+uint8_t bit_read_0(uint8_t data, uint8_t bit)
 {
 	return data & (0b00000001 << bit);
 }
@@ -212,7 +212,7 @@ uint8_t bit_read(uint8_t data, uint8_t bit)
 /*
  * Initialize data transfer registers for accelerometer output.
  */
-void init_accelerometer() 
+void init_accelerometer_0() 
 {
 	am_write(CTRL_REG0_XM, 0x00);
 	am_write(CTRL_REG1_XM, 0x57);
@@ -259,7 +259,7 @@ void init_accelerometer_scale(a_scale scale)
 /*
  * Read and print raw accelerometer data.
  */
-void get_raw_accelerometer(uint16_t *output)
+void get_raw_accelerometer_0(uint16_t *output)
 {
 	uint8_t temp[6];
 	
@@ -371,13 +371,13 @@ void get_raw_magnetometer(uint16_t *output)
 }
 
 /**************************************************************************************/
-/***********  Magnetometer register initiation and other such nonsense. ***************/
+/************  Gyroscope register initiation and other such nonsense. *****************/
 /**************************************************************************************/
 
 /*
  * Initialize data transfer registers for gyroscope output.
  */
-void init_gyroscope()
+void init_gyroscope_0()
 {
 	g_write(CTRL_REG1_G, 0x0F);
 	g_write(CTRL_REG2_G, 0x00);
@@ -447,7 +447,7 @@ void print_raw_gyroscope()
 /*
  *  Configure UART console.
  */
-void configure_console(struct uart_module* console_instance)
+void configure_console_0(struct uart_module* console_instance)
 {
 	struct uart_config config;
 	
@@ -462,7 +462,7 @@ void configure_console(struct uart_module* console_instance)
 /*
  *  Configure GPIO pins for SPI
  */
-void configure_gpio(void)
+void configure_gpio_0(void)
 {
 	struct gpio_config config;
 	gpio_get_config_defaults(&config);

@@ -185,7 +185,7 @@
 
 /** @brief default device name */
 #ifndef BLE_DEVICE_NAME
-#define BLE_DEVICE_NAME				"ATMEL-BLE"
+#define BLE_DEVICE_NAME				"Cymote Beta"
 #endif
 
 #define GAP_HANDLE_FUNC_MAX 19
@@ -247,7 +247,7 @@ typedef at_ble_status_t (*ble_event_callback_t) (void *params);
 #endif
 
 #ifndef BLE_PAIR_ENABLE
-#define BLE_PAIR_ENABLE					(true)
+#define BLE_PAIR_ENABLE					(false)
 #endif
 
 #ifndef	BLE_AUTHENTICATION_LEVEL

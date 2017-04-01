@@ -133,6 +133,8 @@ int main(void)
 	char newGyroX[GYRO_MAX_LEN], newGyroY[GYRO_MAX_LEN], newGyroZ[GYRO_MAX_LEN];
 	char newMagnetX[MAGNET_MAX_LEN], newMagnetY[MAGNET_MAX_LEN], newMagnetZ[MAGNET_MAX_LEN];
 	char newJoystickX[JOYSTICK_MAX_LEN], newJoystickY[JOYSTICK_MAX_LEN], newButtons[BUTTONS_MAX_LEN];
+	at_ble_service_t cymote_service;
+	cymote_characteristic_handle_t cymote_handles;
 
 	uint16_t valueX, valueY, valueZ;
 	uint8_t lenX, lenY, lenZ;
@@ -193,12 +195,23 @@ int main(void)
 		for(i = 0; i < AT_BLE_ADDR_LEN; i++){
 			addr.addr[i] = 0;
 		}
-		addr.addr[0] = 1;
+		addr.addr[0] = 3;
 		ble_device_init(&addr);
+		DBG_LOG("made it past ble device init");
 
+		/*
+		// old way
 		cymote_init_service(&cymote_service_handler);
-		if((status = cymote_primary_service_define(&cymote_service_handler)) != AT_BLE_SUCCESS){
+		if((status = cymote_primary_service_define(&cymote_service_handler, &chr_handle)) != AT_BLE_SUCCESS){
 			DBG_LOG("Device Information Service definition failed,reason %x",status);
+		}
+		*/
+
+		if((status = cymote_service_init(&cymote_service, &cymote_handles)) != AT_BLE_SUCCESS){
+			DBG_LOG("Service definition failed,reason %x",status);
+		}
+		else {
+			DBG_LOG("Service definition success");
 		}
 
 		device_information_advertise();
@@ -219,11 +232,42 @@ int main(void)
 			ble_event_task(BLE_EVENT_TIMEOUT);
 		
 			/* Update BLE data */
-			get_raw_accelerometer(accelerometer_data);
-			get_raw_gyroscope(gyroscope_data);
-			get_raw_magnetometer(magnetometer_data);
+			//get_raw_accelerometer(accelerometer_data);
+			//get_raw_gyroscope(gyroscope_data);
+			//get_raw_magnetometer(magnetometer_data);
+			//do {
+			//} while (adc_read(ADC_INPUT_CH_GPIO_MS1, &joystick_data[0]) == STATUS_BUSY);
+			//do {
+			//} while (adc_read(ADC_INPUT_CH_GPIO_MS2, &joystick_data[1]) == STATUS_BUSY);
 			//get_button_data(buttons);
 
+			accelerometer_data[0] = 10000;
+			accelerometer_data[1] = 10001;
+			accelerometer_data[2] = 10002;
+			gyroscope_data[0] = 20000;
+			gyroscope_data[1] = 20001;
+			gyroscope_data[2] = 20002;
+			magnetometer_data[0] = 30000;
+			magnetometer_data[1] = 30001;
+			magnetometer_data[2] = 30002;
+			joystick_data[0] = 42;
+			joystick_data[1] = 24;
+			buttons = 2;
+			
+			at_ble_characteristic_value_set(cymote_handles.accel_x_handle, "lol", 3);
+			at_ble_characteristic_value_set(cymote_handles.accel_y_handle, "JK", 2);
+			at_ble_characteristic_value_set(cymote_handles.accel_z_handle, "accelerometer_data[2]", 5);
+			at_ble_characteristic_value_set(cymote_handles.gyro_x_handle, "lol", 3);
+			at_ble_characteristic_value_set(cymote_handles.gyro_y_handle, "lol", 3);
+			at_ble_characteristic_value_set(cymote_handles.gyro_z_handle, "lol", 3);
+			at_ble_characteristic_value_set(cymote_handles.magnet_x_handle, "lol", 3);
+			at_ble_characteristic_value_set(cymote_handles.magnet_y_handle, "lol", 3);
+			at_ble_characteristic_value_set(cymote_handles.magnet_z_handle, "lol", 3);
+			at_ble_characteristic_value_set(cymote_handles.joystick_x_handle, "lol", 3);
+			at_ble_characteristic_value_set(cymote_handles.joystick_y_handle, "lol", 3);
+			at_ble_characteristic_value_set(cymote_handles.buttons_handle, "00000000", 8);
+
+			/*
 			//accelerometer
 			valueX = accelerometer_data[0];
 			valueY = accelerometer_data[1];
@@ -238,7 +282,7 @@ int main(void)
 			newDataZ.info_data = (uint8_t*)newAccelZ;
 			newDataZ.data_len = lenZ;
 			UPDATE_ACCEL(&cymote_service_handler, &newDataX, &newDataY, &newDataZ, cymote_connection_handle);
-
+			
 			//gyroscope
 			valueX = gyroscope_data[0];
 			valueY = gyroscope_data[1];
@@ -274,9 +318,9 @@ int main(void)
 			valueY = joystick_data[1];
 			lenX = snprintf(newJoystickX, JOYSTICK_MAX_LEN, "%d", valueX);
 			lenY = snprintf(newJoystickY, JOYSTICK_MAX_LEN, "%d", valueY);
-			newDataX.info_data = (uint8_t*)newMagnetX;
+			newDataX.info_data = (uint8_t*)newJoystickX;
 			newDataX.data_len = lenX;
-			newDataY.info_data = (uint8_t*)newMagnetY;
+			newDataY.info_data = (uint8_t*)newJoystickY;
 			newDataY.data_len = lenY;
 			UPDATE_JOYSTICK(&cymote_service_handler, &newDataX, &newDataY, cymote_connection_handle);
 
@@ -286,6 +330,8 @@ int main(void)
 			newDataZ.info_data = (uint8_t*)newButtons;
 			newDataZ.data_len = lenZ;
 			UPDATE_BUTTONS(&cymote_service_handler, &newDataZ, cymote_connection_handle);
+
+			*/
 		}
 		
 		/*
@@ -324,7 +370,7 @@ int main(void)
 
 
 
-		printf("aX: %d, aY: %d, aZ: %d\r\n", accelerometer_data[0], accelerometer_data[1], accelerometer_data[2]);
+		//printf("aX: %d, aY: %d, aZ: %d\r\n", accelerometer_data[0], accelerometer_data[1], accelerometer_data[2]);
 
     }
 }
