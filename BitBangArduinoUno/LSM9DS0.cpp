@@ -359,9 +359,7 @@ void LSM9DS0::init_magnetometer()
   /* Output data 80hz (111) */
   /* Disable fast odr   (0) */
   /* Self test off      (0) */
-  Serial.println(spi_read_byte_m(CTRL_REG1_M), BIN);
   spi_write_m(CTRL_REG1_M, 0b01111100);
-  Serial.println(spi_read_byte_m(CTRL_REG1_M), BIN);
 
   /* Default zero       (0) */
   /* Scale 4gauss      (00) */

@@ -22,6 +22,12 @@
 #define OUT_X_L_XL		0x28
 #define OUT_X_L_G		0x18
 #define WHO_AM_I_XM     0x0f
+#define CTRL_REG1_M     0x20
+#define CTRL_REG2_M     0x21
+#define CTRL_REG3_M     0x22
+#define CTRL_REG4_M     0x23
+#define CTRL_REG5_M     0x24
+#define OUT_X_L_M       0x28
 
 #define AG_SSC_PIN  PIN_LP_GPIO_12 /* EXT1 15 CSXM  */
 #define AG_SCK_PIN  PIN_LP_GPIO_10 /* EXT1 18 SCL   */
@@ -30,7 +36,7 @@
 
 #define M_SSC_PIN	PIN_LP_GPIO_16 /* EXT3 15 CSG  */
 #define M_SCK_PIN	PIN_LP_GPIO_10 /* EXT1 18 SCL  */
-#define M_MISO_PIN	PIN_LP_GPIO_18 /* EXT3 17 SDOG */
+#define M_MISO_PIN	PIN_LP_GPIO_13 /* EXT1 17 SDOXM */
 #define M_MOSI_PIN	PIN_LP_GPIO_11 /* EXT1 16 SDA  */
 
 /*
@@ -118,6 +124,24 @@ void init_gyroscope(void);
  * Read and print raw gyroscope data.
  */
 void get_raw_gyroscope(uint16_t* output);
+
+/**************************************************************************************/
+/***********  Magnetometer register initiation and other such nonsense. ***************/
+/**************************************************************************************/
+
+/*
+ * Initialize data transfer registers for gyroscope output.
+ */
+void init_magnetometer(void);
+
+/*
+ * Read and print raw gyroscope data.
+ */
+void get_raw_magnetometer(uint16_t* output);
+
+/**************************************************************************************/
+/******************  Register initiation and other such nonsense. *********************/
+/**************************************************************************************/
 
 /*
  *  Configure UART console.
