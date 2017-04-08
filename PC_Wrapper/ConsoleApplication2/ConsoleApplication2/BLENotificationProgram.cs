@@ -10,6 +10,7 @@ using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration.Pnp;
 using Windows.Storage.Streams;
+using System.Collections;
 
 // BLE data extractor leaning heavily on code from 
 // https://github.com/DrJukka/BLETestStuffWindows/blob/master/HeartbeatFg/HeartbeatFg/Engine/HeartBeatEngine.cs
@@ -33,8 +34,8 @@ namespace ConsoleApplication2
         static volatile string joy_y = "0";
                
         static volatile string buttons = "00000";
-               
-        static long time = 0;
+
+        static volatile string time = "0";
 
         async static Task BLE()
         {
@@ -44,7 +45,7 @@ namespace ConsoleApplication2
             Console.WriteLine(device.Name);
 
             // Get the service containing our characteristic
-            Guid ServiceId = new Guid("00000000-0000-0000-0000-000000000000");
+            Guid ServiceId = new Guid("6D617931-3733-3500-0000-000000000000");
             GattDeviceService services = device.GetGattService(ServiceId);
 
             // This block assumes multiple characteristics and polls from each separate characteristic containing the needed data
@@ -99,7 +100,7 @@ namespace ConsoleApplication2
 
                         // Time
                         case "05100000-0000-0000-0000-000000000000":
-                            
+                            time = output;
                             break;
 
                         default:
@@ -113,8 +114,8 @@ namespace ConsoleApplication2
         {
             // Variable to keep track of time since program execution
             // (This is when the party of the wrapper starts)
-            Stopwatch party = new Stopwatch();
-            party.Start();
+            //Stopwatch party = new Stopwatch();
+            //party.Start();
 
             // Start the BLE polling
             try
@@ -156,7 +157,7 @@ namespace ConsoleApplication2
                     // Time
                     if (flags.Contains('t'))
                     {
-                        time = party.ElapsedMilliseconds;
+                        //time = party.ElapsedMilliseconds;
                         sb.Append(time + ", ");
                     }
 
@@ -200,10 +201,15 @@ namespace ConsoleApplication2
                     // Buttons
                     if (flags.Contains('b'))
                     {
+                        int buttonInt = int.Parse(buttons);
+
+                        BitArray b = new BitArray(new int[] { buttonInt });
+                        int[] bits = b.Cast<bool>().Select(bit => bit ? 1 : 0).ToArray();
+
                         // Button order: TBD by Kyle
                         for (int i = 0; i < 5; i++)
                         {
-                            sb.Append(buttons[i] + ", ");
+                            sb.Append(bits[i] + ", ");
                         }
                     }
 
