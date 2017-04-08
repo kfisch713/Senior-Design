@@ -309,7 +309,7 @@ void print_calculated_accelerometer(a_odr rate, a_scale scale)
 /*
  * Initialize data transfer registers for magnetometer output.
  */
-void init_magnetometer()
+void init_magnetometer_0()
 {
 	am_write(CTRL_REG5_XM, 0x94);
 	am_write(CTRL_REG6_XM, 0x00);
@@ -357,7 +357,7 @@ void init_magnetometer_scale(m_scale scale)
 /*
  * Read and print raw magnetometer data.
  */
-void get_raw_magnetometer(uint16_t *output)
+void get_raw_magnetometer_0(uint16_t *output)
 {
 	uint8_t temp[6];
 	
