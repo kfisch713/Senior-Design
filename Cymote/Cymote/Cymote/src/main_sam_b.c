@@ -69,6 +69,7 @@ uint8_t dummy_data_counter_old = 0;
 uint8_t dummy_data_2_state = 0;
 uint8_t dummy_data[] = {'A', 'B', 'C', 'D', 'E', 'a'};
 uint16_t accelerometer_data[3];
+bool volatile flag = true;
 
 /* timer callback function */
 static void timer_callback_fn(void)
@@ -128,6 +129,68 @@ static const ble_event_callback_t cymote_app_gap_cb[] = {
 	NULL,
 	NULL,
 	ble_paired_app_event,
+	NULL,
+	NULL,
+	NULL,
+	NULL
+};
+
+
+/* Callback registered for AT_BLE_NOTIFICATION_CONFIRMED event from stack */
+static at_ble_status_t ble_notification_confirmed_app_event(void *param)
+{
+	at_ble_cmd_complete_event_t *notification_status = (at_ble_cmd_complete_event_t *)param;
+	if(!notification_status->status)
+	{
+		flag = true;
+		DBG_LOG_DEV("sending notification to the peer success");
+	}
+	return AT_BLE_SUCCESS;
+}
+
+at_ble_status_t cymote_char_changed_event(at_ble_handle_t conn_handle, cymote_service_handler_t *cymote_service, at_ble_characteristic_changed_t *char_handle, bool volatile *flag)
+{
+	at_ble_status_t status = AT_BLE_SUCCESS;
+	at_ble_characteristic_changed_t change_params;
+	memcpy((uint8_t *)&change_params, char_handle, sizeof(at_ble_characteristic_changed_t));
+	
+	if(cymote_service->service_characteristics[2].client_config_handle == change_params.char_handle)
+	{
+		if(change_params.char_new_value[0])
+		{
+			/* sending notification to the peer about change in the battery level */
+			if((status = at_ble_notification_send(conn_handle, cymote_service->service_characteristics[2].char_val_handle)) != AT_BLE_SUCCESS) {
+				DBG_LOG("sending notification failed%d",status);
+				return status;
+			}
+			else {
+				DBG_LOG_DEV("sending notification successful");
+				*flag = false;
+				return status;
+			}
+		}
+		else
+		{
+			//do nothing
+		}
+	}
+	return status;
+}
+
+/* Callback registered for AT_BLE_CHARACTERISTIC_CHANGED event from stack */
+static at_ble_status_t ble_char_changed_app_event(void *param)
+{
+	at_ble_characteristic_changed_t *char_handle = (at_ble_characteristic_changed_t *)param;
+	return cymote_char_changed_event(char_handle->conn_handle, &cymote_service_handler, char_handle, &flag);
+}
+
+static const ble_event_callback_t battery_app_gatt_server_cb[] = {
+	ble_notification_confirmed_app_event,
+	NULL,
+	ble_char_changed_app_event,
+	NULL,
+	NULL,
+	NULL,
 	NULL,
 	NULL,
 	NULL,

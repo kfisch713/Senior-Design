@@ -92,5 +92,4 @@
 // From module: USART - Serial interface- SAM B implementation for devices with only UART
 #include <serial.h>
 
-
 #endif // ASF_H

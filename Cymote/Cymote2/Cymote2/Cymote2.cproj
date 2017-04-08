@@ -196,7 +196,7 @@
       </framework-data>
     </AsfFrameworkConfig>
     <avrtool>com.atmel.avrdbg.tool.edbg</avrtool>
-    <avrtoolserialnumber>ATML2534030200002308</avrtoolserialnumber>
+    <avrtoolserialnumber>ATML2534030200000676</avrtoolserialnumber>
     <avrdeviceexpectedsignature>0x2000B0</avrdeviceexpectedsignature>
     <avrtoolinterface>SWD</avrtoolinterface>
     <com_atmel_avrdbg_tool_edbg>
@@ -207,19 +207,19 @@
         <InterfaceName>SWD</InterfaceName>
       </ToolOptions>
       <ToolType>com.atmel.avrdbg.tool.edbg</ToolType>
-      <ToolNumber>ATML2534030200002308</ToolNumber>
+      <ToolNumber>ATML2534030200000676</ToolNumber>
       <ToolName>EDBG</ToolName>
     </com_atmel_avrdbg_tool_edbg>
     <avrtoolinterfaceclock>2000000</avrtoolinterfaceclock>
     <com_atmel_avrdbg_tool_atmelice>
       <ToolOptions>
         <InterfaceProperties>
-          <SwdClock>2000000</SwdClock>
+          <SwdClock>0</SwdClock>
         </InterfaceProperties>
         <InterfaceName>SWD</InterfaceName>
       </ToolOptions>
       <ToolType>com.atmel.avrdbg.tool.atmelice</ToolType>
-      <ToolNumber>J41800049967</ToolNumber>
+      <ToolNumber>J41800038239</ToolNumber>
       <ToolName>Atmel-ICE</ToolName>
     </com_atmel_avrdbg_tool_atmelice>
     <custom>
@@ -298,11 +298,13 @@
       <Value>libblusdk</Value>
       <Value>libarm_cortexM0l_math</Value>
       <Value>libm</Value>
+      <Value>libblusdk.a</Value>
     </ListValues>
   </armgcc.linker.libraries.Libraries>
   <armgcc.linker.libraries.LibrarySearchPaths>
     <ListValues>
       <Value>../src/ASF/thirdparty/CMSIS/Lib/GCC</Value>
+      <Value>C:\Senior-Design\Cymote\Cymote2\Cymote2\src\ASF\thirdparty\wireless\ble_smart_sdk\lib\cm0\gcc</Value>
       <Value>../src/ASF/thirdparty/wireless/ble_smart_sdk/lib/cm0/gcc</Value>
     </ListValues>
   </armgcc.linker.libraries.LibrarySearchPaths>
@@ -396,6 +398,7 @@
       <Value>BOARD=SAMB11_XPLAINED_PRO</Value>
       <Value>ARM_MATH_CM0PLUS=true</Value>
       <Value>CHIPVERSION_B0</Value>
+      <Value>BLE_DEVICE_ROLE=BLE_ROLE_ALL</Value>
     </ListValues>
   </armgcc.compiler.symbols.DefSymbols>
   <armgcc.compiler.directories.IncludePaths>
@@ -433,9 +436,8 @@
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
   <armgcc.compiler.optimization.level>Optimize (-O1)</armgcc.compiler.optimization.level>
-  <armgcc.compiler.optimization.OtherFlags>-fdata-sections</armgcc.compiler.optimization.OtherFlags>
-  <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
-  <armgcc.compiler.optimization.DebugLevel>Maximum (-g3)</armgcc.compiler.optimization.DebugLevel>
+  <armgcc.compiler.optimization.GeneratePositionIndependentCode>True</armgcc.compiler.optimization.GeneratePositionIndependentCode>
+  <armgcc.compiler.optimization.DebugLevel>Default (-g2)</armgcc.compiler.optimization.DebugLevel>
   <armgcc.compiler.warnings.AllWarnings>True</armgcc.compiler.warnings.AllWarnings>
   <armgcc.compiler.miscellaneous.OtherFlags>-pipe -fno-strict-aliasing -Wall -Wstrict-prototypes -Wmissing-prototypes -Werror-implicit-function-declaration -Wpointer-arith -std=gnu99 -ffunction-sections -fdata-sections -Wchar-subscripts -Wcomment -Wformat=2 -Wimplicit-int -Wmain -Wparentheses -Wsequence-point -Wreturn-type -Wswitch -Wtrigraphs -Wunused -Wuninitialized -Wunknown-pragmas -Wfloat-equal -Wundef -Wshadow -Wbad-function-cast -Wwrite-strings -Wsign-compare -Waggregate-return  -Wmissing-declarations -Wformat -Wmissing-format-attribute -Wno-deprecated-declarations -Wpacked -Wredundant-decls -Wnested-externs -Wlong-long -Wunreachable-code -Wcast-align --param max-inline-insns-single=500</armgcc.compiler.miscellaneous.OtherFlags>
   <armgcc.linker.general.UseNewlibNano>True</armgcc.linker.general.UseNewlibNano>
@@ -444,15 +446,18 @@
       <Value>libblusdk</Value>
       <Value>libarm_cortexM0l_math</Value>
       <Value>libm</Value>
+      <Value>libblusdk.a</Value>
     </ListValues>
   </armgcc.linker.libraries.Libraries>
   <armgcc.linker.libraries.LibrarySearchPaths>
     <ListValues>
       <Value>../src/ASF/thirdparty/CMSIS/Lib/GCC</Value>
+      <Value>C:\Senior-Design\Cymote\Cymote2\Cymote2\src\ASF\thirdparty\wireless\ble_smart_sdk\lib\cm0\gcc</Value>
       <Value>../src/ASF/thirdparty/wireless/ble_smart_sdk/lib/cm0/gcc</Value>
     </ListValues>
   </armgcc.linker.libraries.LibrarySearchPaths>
   <armgcc.linker.optimization.GarbageCollectUnusedSections>True</armgcc.linker.optimization.GarbageCollectUnusedSections>
+  <armgcc.linker.memorysettings.ExternalRAM />
   <armgcc.linker.miscellaneous.LinkerFlags>-Wl,--entry=app_entry -Wl,--cref -mthumb -T../src/ASF/sam0/utils/linker_scripts/samb11/gcc/samb11g18a_sram.ld</armgcc.linker.miscellaneous.LinkerFlags>
   <armgcc.assembler.general.IncludePaths>
     <ListValues>
@@ -1040,6 +1045,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\LSM9DS0.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\LSM9DS1.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\LSM9DS1.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\main_sam_b.c">

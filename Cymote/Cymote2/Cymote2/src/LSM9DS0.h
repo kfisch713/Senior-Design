@@ -159,13 +159,13 @@ void g_read_bytes(uint8_t address, uint8_t* data, uint8_t count);
  *  Writes a high value to the bit corresponding with uint8_t bit.
  *  The bits are ordered from right to left, zero indexed.
  */
-uint8_t bit_write_high(uint8_t data, uint8_t bit);
+uint8_t bit_write_high_0(uint8_t data, uint8_t bit);
 
 /*
  *  Reads the bit value corresponding with uint8_t bit.
  *  This bits are ordered from right to left, zero indexed.
  */
-uint8_t bit_read(uint8_t data, uint8_t bit);
+uint8_t bit_read_0(uint8_t data, uint8_t bit);
 
 /**************************************************************************************/
 /***********  Accelerometer register initiation and other such nonsense. **************/
@@ -174,7 +174,7 @@ uint8_t bit_read(uint8_t data, uint8_t bit);
 /*
  * Initialize data transfer registers for accelerometer output.
  */
-void init_accelerometer(void);
+void init_accelerometer_0(void);
 
 /* 
  * Set the output data rate for the accelerometer.
@@ -189,7 +189,7 @@ void init_accelerometer_scale(a_scale scale);
 /*
  * Reads accelerometer values and prints them raw.
  */
-void get_raw_accelerometer(uint16_t *output);
+void get_raw_accelerometer_0(uint16_t *output);
 
 /*
  * Reads and calculates accelerometer values and prints them.
@@ -216,14 +216,9 @@ void init_magnetometer_odr(m_odr rate);
 void init_magnetometer_scale(m_scale scale);
 
 /*
- * Read raw magnetometer data.
- */
-void get_raw_magnetometer(uint16_t *output);
-
-/*
  * Read and print raw magnetometer data.
  */
-void print_raw_magnetometer(void);
+void get_raw_magnetometer(uint16_t *output);
 
 /**************************************************************************************/
 /***********  Magnetometer register initiation and other such nonsense. ***************/
@@ -232,7 +227,7 @@ void print_raw_magnetometer(void);
 /*
  * Initialize data transfer registers for gyroscope output.
  */
-void init_gyroscope(void);
+void init_gyroscope_0(void);
 
 /*
  * Set the output data rate for the gyroscope.
@@ -243,11 +238,6 @@ void init_gyroscope_odr(g_odr rate);
  * Set the scale for the data from the gyroscope.
  */
 void init_gyroscope_scale(g_scale scale);
-
-/*
- * Read raw gyroscope data.
- */
-void get_raw_gyroscope(uint16_t *output);
 
 /*
  * Read and print raw gyroscope data.
@@ -266,11 +256,11 @@ void configure_xm_ctrl_regs(void);
 /*
  * Configure UART console.
  */
-void configure_console(struct uart_module* console_instance);
+void configure_console_0(struct uart_module* console_instance);
 
 /*
  *  Configure GPIO pins for SPI
  */
-void configure_gpio(void);
+void configure_gpio_0(void);
 
 #endif /* LSM9DS0_H_ */

@@ -8,6 +8,8 @@
  #include "BLE.h"
 
  cymote_characteristic_value_t characteristic_value;
+ at_ble_char_presentation_t presentation_format;
+
  const uint8_t CYMOTE_SERVICE_UUID[16] = {0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0, 0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0};
 
  const uint8_t BOARD_NAME_UUID[16]     = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01};
@@ -24,8 +26,10 @@
 	 int i;
 	 int index = 0;
 
-	 cymote_service->service_handle = 1;
-	 
+	 cymote_service->service_handle = 0;
+	 for(i=0;i<16;i++){
+		 cymote_service->uuid.uuid[i] = CYMOTE_SERVICE_UUID[i];
+	 }
 	 
 	 /* Device name */
 	 {
@@ -174,7 +178,17 @@
 	 cymote_service->service_characteristics[index].server_config_handle = 0;         /*server config handles*/
 	 cymote_service->service_characteristics[index].presentation_format = NULL;
 
-	 
+
+	 presentation_format.format = AT_BLE_PRES_FORMAT_UINT8;
+	 presentation_format.exponent = 0x00;
+	 presentation_format.unit = (uint8_t) 0x1807;
+	 presentation_format.unit = (uint8_t) (0x1807 >> 8);
+	 presentation_format.name_space = 0x01;
+	 presentation_format.description = (uint8_t) 0x1000;
+	 presentation_format.description = (uint8_t) (0x1000 >> 8);
+	 for(i=0;i<MAX_NUM_CHARACTERISTICS;i++){
+		cymote_service->service_characteristics[i].presentation_format = &presentation_format;
+	 }
  }
 
  /* Register cymote_service as primary service instance inside stack. */
