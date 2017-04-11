@@ -37,6 +37,8 @@ namespace ConsoleApplication2
 
         static volatile string time = "0";
 
+        static volatile bool dataChanged = false;
+
         async static Task BLE()
         {
             GattReadResult result = null;
@@ -47,6 +49,9 @@ namespace ConsoleApplication2
             // Get the service containing our characteristic
             Guid ServiceId = new Guid("6D617931-3733-3500-0000-000000000000");
             GattDeviceService services = device.GetGattService(ServiceId);
+
+            string preAccData = "";
+            string curAccData = "";
 
             // This block assumes multiple characteristics and polls from each separate characteristic containing the needed data
             while (true)
@@ -67,6 +72,13 @@ namespace ConsoleApplication2
                     {
                         // AccelX AccelY AccelZ
                         case "01100000-0000-0000-0000-000000000000":
+                            curAccData = output;
+                            if (preAccData.Equals(curAccData))
+                                dataChanged = false;
+                            else
+                                dataChanged = true;
+                            preAccData = curAccData;
+
                             string[] AccelValues = output.Split(' ');
                             accel_x = AccelValues[0];
                             accel_y = AccelValues[1];
@@ -169,9 +181,9 @@ namespace ConsoleApplication2
                         double data_y = (short)ushort.Parse(accel_y) * 8.0 / 32768;
                         double data_z = (short)ushort.Parse(accel_z) * 8.0 / 32768; 
 
-                        sb.Append(data_x + ", ");
-                        sb.Append(data_y + ", ");
-                        sb.Append(data_z + ", ");
+                        sb.Append(data_x.ToString("0.0000000") + ", ");
+                        sb.Append(data_y.ToString("0.0000000") + ", ");
+                        sb.Append(data_z.ToString("0.0000000") + ", ");
                     }
 
                     // Gyroscope
@@ -181,9 +193,9 @@ namespace ConsoleApplication2
                         double data_y = (short)ushort.Parse(gyro_y) * 0.00875;
                         double data_z = (short)ushort.Parse(gyro_z) * 0.00875;
 
-                        sb.Append(data_x + ", ");
-                        sb.Append(data_y + ", ");
-                        sb.Append(data_z + ", ");
+                        sb.Append(data_x.ToString("0.0000000") + ", ");
+                        sb.Append(data_y.ToString("0.0000000") + ", ");
+                        sb.Append(data_z.ToString("0.0000000") + ", ");
                     }
 
                     // Magnetometer
@@ -193,9 +205,9 @@ namespace ConsoleApplication2
                         double data_y = (short)ushort.Parse(mag_y) * 0.00014;
                         double data_z = (short)ushort.Parse(mag_z) * 0.00014;
 
-                        sb.Append(data_x + ", ");
-                        sb.Append(data_y + ", ");
-                        sb.Append(data_z + ", ");
+                        sb.Append(data_x.ToString("0.0000000") + ", ");
+                        sb.Append(data_y.ToString("0.0000000") + ", ");
+                        sb.Append(data_z.ToString("0.0000000") + ", ");
                     }
 
                     // Buttons
@@ -220,11 +232,15 @@ namespace ConsoleApplication2
                         sb.Append(joy_y + ", ");
                     }
                     
+
                     // Print the output string with the trailing comma cut off
-                    Console.WriteLine(sb.ToString().Substring(0, sb.ToString().Length - 2));
+                    if (dataChanged)
+                        Console.WriteLine(sb.ToString().Substring(0, sb.ToString().Length - 2));
+
+                    dataChanged = false;
 
                     // Edit this depending on the output rate of BLE
-                    Thread.Sleep(100);
+                    //Thread.Sleep(100);
                 }
                 
             } else
