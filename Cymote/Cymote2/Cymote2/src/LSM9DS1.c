@@ -310,6 +310,66 @@ void get_raw_gyroscope(uint16_t* output)
 }
 
 /**************************************************************************************/
+/***********  Magnetometer register initiation and other such nonsense. ***************/
+/**************************************************************************************/
+
+/*
+ * Initialize data transfer registers for gyroscope output.
+ */
+void init_magnetometer()
+{
+	/* Temp comp disable  (0) */
+	/* XY high pref      (11) */
+	/* Output data 80hz (111) */
+	/* Disable fast odr   (0) */
+	/* Self test off      (0) */
+	m_write(CTRL_REG1_M, 0b01111100);
+	
+	/* Default zero       (0) */
+	/* Scale 4gauss      (00) */
+	/* Default zero       (0) */
+	/* Keep memory        (0) */
+	/* Reset default      (0) */
+	/* Default zeros     (00) */
+	m_write(CTRL_REG2_M, 0b00000000);
+
+	/* Disable I2C        (0) */
+	/* Default zero       (0) */
+	/* Low power mode off (0) */
+	/* Default zeros     (00) */
+	/* SPI read/write     (1) */
+	/* Continuous conv   (00) */
+	m_write(CTRL_REG3_M, 0b00000000);
+
+	/* Default zeros   (0000) */
+	/* Z High preform    (11) */
+	/* Little endian      (0) */
+	/* Default zero       (0) */
+	m_write(CTRL_REG4_M, 0b00001100);
+
+	/* Default zero       (0) */
+	/* Update continuous  (0) */
+	/* Default zeros (000000) */
+	m_write(CTRL_REG5_M, 0b00000000);
+}
+
+/*
+ * Read and print raw gyroscope data.
+ */
+void get_raw_magnetometer(uint16_t* output)
+{
+	uint8_t temp[6];
+	
+	/* Read data from all accelerometer output registers. */
+	m_read_bytes(OUT_X_L_M, temp, 6);
+	
+	/* Store it into various variables. */
+	output[0] = (temp[1] << 8) | temp[0]; /* X */
+	output[1] = (temp[3] << 8) | temp[2]; /* Y */
+	output[2] = (temp[5] << 8) | temp[4]; /* Z */
+}
+
+/**************************************************************************************/
 /******************  Register initiation and other such nonsense. *********************/
 /**************************************************************************************/
 

@@ -48,11 +48,21 @@
    GND   19     GND       Black
 */
 
+/*
+	Top to Bottom
+	CS_AG	White	EXT1 15
+	MOSI	Blue	EXT1 16
+	MISO	Green	EXT1 17
+	SCLK	Purple	EXT1 18
+	GND		Gray	EXT1 19
+	VCC		Orange	EXT1 20
+*/
+
 
 #define DONT_USE_CMSIS_INIT
 #include <asf.h>
 #include "BLE.h"
-#include "LSM9DS0.h"
+#include "LSM9DS1.h"
 #include "ADC_PWM.h"
 #include "timer_hw.h"
 #include "button.h"
@@ -168,28 +178,28 @@ int main(void)
 	button_register_callback(button_cb);
 
 	/* LSM9DS0 gpio configuration. */
-	configure_gpio_0();
+	configure_gpio();
 
 	/* Start up SPI and read the status register. */
 	uint8_t receive = 0x00;
-	am_read_byte(WHO_AM_I_XM);
-	receive = am_read_byte(WHO_AM_I_XM);
+	ag_read_byte(WHO_AM_I_XM);
+	receive = ag_read_byte(WHO_AM_I_XM);
 	printf("Should be 0x68: 0x%x\r\n", receive);
 
 	/* Initialize accelerometer control registers. */
-	init_accelerometer_0();
-	init_accelerometer_odr(A_ODR_100);
-	init_accelerometer_scale(A_SCALE_6G);
+	init_accelerometer();
+	//init_accelerometer_odr(A_ODR_100);
+	//init_accelerometer_scale(A_SCALE_6G);
 	
 	/* Initialize magnetometer control registers. */
 	init_magnetometer();
-	init_magnetometer_odr(M_ODR_100);
-	init_magnetometer_scale(M_SCALE_2GS);
+	//init_magnetometer_odr(M_ODR_100);
+	//init_magnetometer_scale(M_SCALE_2GS);
 	
 	/* Initialize gyroscope control registers. */
-	init_gyroscope_0();
-	init_gyroscope_odr(G_ODR_190_BW_125);
-	init_gyroscope_scale(G_SCALE_2000DPS);
+	init_gyroscope();
+	//init_gyroscope_odr(G_ODR_190_BW_125);
+	//init_gyroscope_scale(G_SCALE_2000DPS);
 	
 	
 	if(USE_BLE){
@@ -232,9 +242,9 @@ int main(void)
 			ble_event_task(BLE_EVENT_TIMEOUT);
 		
 			/* Update BLE data */
-			get_raw_accelerometer_0(accelerometer_data);
-			//get_raw_gyroscope(gyroscope_data);
-			//get_raw_magnetometer(magnetometer_data);
+			get_raw_accelerometer(accelerometer_data);
+			get_raw_gyroscope(gyroscope_data);
+			get_raw_magnetometer(magnetometer_data);
 			//do {
 			//} while (adc_read(ADC_INPUT_CH_GPIO_MS1, &joystick_data[0]) == STATUS_BUSY);
 			//do {
@@ -245,12 +255,12 @@ int main(void)
 			//accelerometer_data[0] = 10000;
 			//accelerometer_data[1] = 10001;
 			//accelerometer_data[2] = 10002;
-			gyroscope_data[0] = 123;
-			gyroscope_data[1] = 456;
-			gyroscope_data[2] = 789;
-			magnetometer_data[0] = 30000;
-			magnetometer_data[1] = 30001;
-			magnetometer_data[2] = 30002;
+			//gyroscope_data[0] = 123;
+			//gyroscope_data[1] = 456;
+			//gyroscope_data[2] = 789;
+			//magnetometer_data[0] = 30000;
+			//magnetometer_data[1] = 30001;
+			//magnetometer_data[2] = 30002;
 			joystick_data[0] = 42;
 			joystick_data[1] = 24;
 			buttons = 16;

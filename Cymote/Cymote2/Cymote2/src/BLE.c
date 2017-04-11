@@ -23,12 +23,6 @@
 	int i;
 	at_ble_status_t status = AT_BLE_FAILURE;
 	
-	/* an array of descriptions in needed for the function. This implementation has NUMBER_ATTRIBUTE_DESCRIPTIONS 
-	 * for each characteristic.
-	 */
-	at_ble_generic_att_desc_t attribute_descriptions[MAX_NUM_CHARACTERISTICS][NUMBER_ATTRIBUTE_DESCRIPTIONS];
-
-	
 	//setup the characteristic uuids
 	characteristic_uuid_init(data->characteristic_uuids);
 	DBG_LOG("made it past characteristic uuid init");
