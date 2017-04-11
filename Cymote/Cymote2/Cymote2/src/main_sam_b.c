@@ -57,8 +57,13 @@
 #include "timer_hw.h"
 #include "button.h"
 #include "console_serial.h"
+#include "time.h"
 
 #define USE_BLE 1
+#define DATA_BUFFER_LENGTH 20
+#define LENGTH_OF_DATA_IN_STRING_FORM 5
+
+uint8_t prepare_send_buffer(uint8_t buffer[DATA_BUFFER_LENGTH], uint16_t data1, uint16_t data2, uint16_t data3);
 
 /* Globals */
 cymote_service_handler_t cymote_service_handler;
@@ -68,7 +73,10 @@ uint16_t accelerometer_data[3];
 uint16_t gyroscope_data[3];
 uint16_t magnetometer_data[3];
 uint16_t joystick_data[2];
-uint8_t  buttons;
+uint8_t buttons;
+uint8_t time_ms;
+bool volatile flag = true;
+cymote_service_handler_t cymote_gatt_service_handle;
 
 /* timer callback function */
 static void timer_callback_fn(void)
@@ -103,6 +111,7 @@ at_ble_status_t ble_paired_app_event(void *param)
 	return AT_BLE_SUCCESS;
 }
 
+
 static const ble_event_callback_t cymote_app_gap_cb[] = {
 	NULL,
 	NULL,
@@ -128,16 +137,14 @@ static const ble_event_callback_t cymote_app_gap_cb[] = {
 int main(void)
 {
 	at_ble_status_t status;
-	cymote_info_data newDataX, newDataY, newDataZ;
-	char newAccelX[ACCEL_MAX_LEN], newAccelY[ACCEL_MAX_LEN], newAccelZ[ACCEL_MAX_LEN];
-	char newGyroX[GYRO_MAX_LEN], newGyroY[GYRO_MAX_LEN], newGyroZ[GYRO_MAX_LEN];
-	char newMagnetX[MAGNET_MAX_LEN], newMagnetY[MAGNET_MAX_LEN], newMagnetZ[MAGNET_MAX_LEN];
-	char newJoystickX[JOYSTICK_MAX_LEN], newJoystickY[JOYSTICK_MAX_LEN], newButtons[BUTTONS_MAX_LEN];
 	at_ble_service_t cymote_service;
 	cymote_characteristic_handle_t cymote_handles;
 
+	//this is just creating the place in memory that everything will be stored in.
+	cymote_service_data_t cymote_data;
+
 	uint16_t valueX, valueY, valueZ;
-	uint8_t lenX, lenY, lenZ;
+	uint8_t len;
 
 
     /* Initialize the SAM system */
@@ -161,16 +168,16 @@ int main(void)
 	button_register_callback(button_cb);
 
 	/* LSM9DS0 gpio configuration. */
-	configure_gpio();
+	configure_gpio_0();
 
 	/* Start up SPI and read the status register. */
 	uint8_t receive = 0x00;
 	am_read_byte(WHO_AM_I_XM);
 	receive = am_read_byte(WHO_AM_I_XM);
-	printf("Should be 0x49: 0x%x\r\n", receive);
+	printf("Should be 0x68: 0x%x\r\n", receive);
 
 	/* Initialize accelerometer control registers. */
-	init_accelerometer();
+	init_accelerometer_0();
 	init_accelerometer_odr(A_ODR_100);
 	init_accelerometer_scale(A_SCALE_6G);
 	
@@ -180,7 +187,7 @@ int main(void)
 	init_magnetometer_scale(M_SCALE_2GS);
 	
 	/* Initialize gyroscope control registers. */
-	init_gyroscope();
+	init_gyroscope_0();
 	init_gyroscope_odr(G_ODR_190_BW_125);
 	init_gyroscope_scale(G_SCALE_2000DPS);
 	
@@ -195,20 +202,13 @@ int main(void)
 		for(i = 0; i < AT_BLE_ADDR_LEN; i++){
 			addr.addr[i] = 0;
 		}
-		addr.addr[0] = 3;
+		addr.addr[0] = 2;
 		ble_device_init(&addr);
-		DBG_LOG("made it past ble device init");
+		DBG_LOG("made it past ble device init\n");
 
-		/*
-		// old way
-		cymote_init_service(&cymote_service_handler);
-		if((status = cymote_primary_service_define(&cymote_service_handler, &chr_handle)) != AT_BLE_SUCCESS){
-			DBG_LOG("Device Information Service definition failed,reason %x",status);
-		}
-		*/
 
-		if((status = cymote_service_init(&cymote_service, &cymote_handles)) != AT_BLE_SUCCESS){
-			DBG_LOG("Service definition failed,reason %x",status);
+		if((status = cymote_service_init(&cymote_service, &cymote_data, &cymote_handles)) != AT_BLE_SUCCESS){
+			DBG_LOG("Service definition failed,reason %x", status);
 		}
 		else {
 			DBG_LOG("Service definition success");
@@ -232,7 +232,7 @@ int main(void)
 			ble_event_task(BLE_EVENT_TIMEOUT);
 		
 			/* Update BLE data */
-			//get_raw_accelerometer(accelerometer_data);
+			get_raw_accelerometer_0(accelerometer_data);
 			//get_raw_gyroscope(gyroscope_data);
 			//get_raw_magnetometer(magnetometer_data);
 			//do {
@@ -241,97 +241,84 @@ int main(void)
 			//} while (adc_read(ADC_INPUT_CH_GPIO_MS2, &joystick_data[1]) == STATUS_BUSY);
 			//get_button_data(buttons);
 
-			accelerometer_data[0] = 10000;
-			accelerometer_data[1] = 10001;
-			accelerometer_data[2] = 10002;
-			gyroscope_data[0] = 20000;
-			gyroscope_data[1] = 20001;
-			gyroscope_data[2] = 20002;
+			//use this to send dummy data. comment out the line you actually want to use
+			//accelerometer_data[0] = 10000;
+			//accelerometer_data[1] = 10001;
+			//accelerometer_data[2] = 10002;
+			gyroscope_data[0] = 123;
+			gyroscope_data[1] = 456;
+			gyroscope_data[2] = 789;
 			magnetometer_data[0] = 30000;
 			magnetometer_data[1] = 30001;
 			magnetometer_data[2] = 30002;
 			joystick_data[0] = 42;
 			joystick_data[1] = 24;
-			buttons = 2;
+			buttons = 16;
+			time_ms = 111;
 			
-			at_ble_characteristic_value_set(cymote_handles.accel_x_handle, "lol", 3);
-			at_ble_characteristic_value_set(cymote_handles.accel_y_handle, "JK", 2);
-			at_ble_characteristic_value_set(cymote_handles.accel_z_handle, "accelerometer_data[2]", 5);
-			at_ble_characteristic_value_set(cymote_handles.gyro_x_handle, "lol", 3);
-			at_ble_characteristic_value_set(cymote_handles.gyro_y_handle, "lol", 3);
-			at_ble_characteristic_value_set(cymote_handles.gyro_z_handle, "lol", 3);
-			at_ble_characteristic_value_set(cymote_handles.magnet_x_handle, "lol", 3);
-			at_ble_characteristic_value_set(cymote_handles.magnet_y_handle, "lol", 3);
-			at_ble_characteristic_value_set(cymote_handles.magnet_z_handle, "lol", 3);
-			at_ble_characteristic_value_set(cymote_handles.joystick_x_handle, "lol", 3);
-			at_ble_characteristic_value_set(cymote_handles.joystick_y_handle, "lol", 3);
-			at_ble_characteristic_value_set(cymote_handles.buttons_handle, "00000000", 8);
-
-			/*
 			//accelerometer
+			uint8_t temp[DATA_BUFFER_LENGTH];
+			int i;
+			for(i=0;i<20;i++){
+				temp[i] = NULL;
+			}
+
 			valueX = accelerometer_data[0];
 			valueY = accelerometer_data[1];
 			valueZ = accelerometer_data[2];
-			lenX = snprintf(newAccelX, ACCEL_MAX_LEN, "%d", valueX);
-			lenY = snprintf(newAccelY, ACCEL_MAX_LEN, "%d", valueY);
-			lenZ = snprintf(newAccelZ, ACCEL_MAX_LEN, "%d", valueZ);
-			newDataX.info_data = (uint8_t*)newAccelX;
-			newDataX.data_len = lenX;
-			newDataY.info_data = (uint8_t*)newAccelY;
-			newDataY.data_len = lenY;
-			newDataZ.info_data = (uint8_t*)newAccelZ;
-			newDataZ.data_len = lenZ;
-			UPDATE_ACCEL(&cymote_service_handler, &newDataX, &newDataY, &newDataZ, cymote_connection_handle);
+			DBG_LOG("%d, %d, %d", valueX, valueY, valueZ);
+			len = prepare_send_buffer(temp, valueX, valueY, valueZ);
+			DBG_LOG("%s\r\n", temp);
+			//printf("%d", cymote_handles.accel_handle);
+			for(i=0;i<20;i++){
+				printf("%x ", temp[i]);
+			}
+			
+			status = at_ble_characteristic_value_set(cymote_handles.accel_handle, temp, len);
+			DBG_LOG("status 1: %x", status);			
 			
 			//gyroscope
 			valueX = gyroscope_data[0];
 			valueY = gyroscope_data[1];
 			valueZ = gyroscope_data[2];
-			lenX = snprintf(newGyroX, GYRO_MAX_LEN, "%d", valueX);
-			lenY = snprintf(newGyroY, GYRO_MAX_LEN, "%d", valueY);
-			lenZ = snprintf(newGyroZ, GYRO_MAX_LEN, "%d", valueZ);
-			newDataX.info_data = (uint8_t*)newGyroX;
-			newDataX.data_len = lenX;
-			newDataY.info_data = (uint8_t*)newGyroY;
-			newDataY.data_len = lenY;
-			newDataZ.info_data = (uint8_t*)newGyroZ;
-			newDataZ.data_len = lenZ;
-			UPDATE_GYRO(&cymote_service_handler, &newDataX, &newDataY, &newDataZ, cymote_connection_handle);
+			len = prepare_send_buffer(temp, valueX, valueY, valueZ);
+
+			DBG_LOG("%s\r\n", temp);
+			//printf("%d", cymote_handles.accel_handle);
+			for(i=0;i<20;i++){
+				printf("%x ", temp[i]);
+			}
+			
+			status = at_ble_characteristic_value_set(cymote_handles.gyro_handle, temp, len);
+			DBG_LOG("status 2: %x", status);
 
 			//magnetometer
 			valueX = magnetometer_data[0];
 			valueY = magnetometer_data[1];
 			valueZ = magnetometer_data[2];
-			lenX = snprintf(newMagnetX, MAGNET_MAX_LEN, "%d", valueX);
-			lenY = snprintf(newMagnetY, MAGNET_MAX_LEN, "%d", valueY);
-			lenZ = snprintf(newMagnetZ, MAGNET_MAX_LEN, "%d", valueZ);
-			newDataX.info_data = (uint8_t*)newMagnetX;
-			newDataX.data_len = lenX;
-			newDataY.info_data = (uint8_t*)newMagnetY;
-			newDataY.data_len = lenY;
-			newDataZ.info_data = (uint8_t*)newMagnetZ;
-			newDataZ.data_len = lenZ;
-			UPDATE_MAGNET(&cymote_service_handler, &newDataX, &newDataY, &newDataZ, cymote_connection_handle);
+			len = prepare_send_buffer(temp, valueX, valueY, valueZ);
+			DBG_LOG("%s\r\n", temp);
+			//printf("%d", cymote_handles.accel_x_handle);
+			for(i=0;i<20;i++){
+				printf("%x ", temp[i]);
+			}
+			
+			status = at_ble_characteristic_value_set(cymote_handles.magnet_handle, temp, len);
+			DBG_LOG("status 3: %x", status);
 
-			//joystick
+			
+			//joystick and buttons
 			valueX = joystick_data[0];
 			valueY = joystick_data[1];
-			lenX = snprintf(newJoystickX, JOYSTICK_MAX_LEN, "%d", valueX);
-			lenY = snprintf(newJoystickY, JOYSTICK_MAX_LEN, "%d", valueY);
-			newDataX.info_data = (uint8_t*)newJoystickX;
-			newDataX.data_len = lenX;
-			newDataY.info_data = (uint8_t*)newJoystickY;
-			newDataY.data_len = lenY;
-			UPDATE_JOYSTICK(&cymote_service_handler, &newDataX, &newDataY, cymote_connection_handle);
-
-			//buttons
-			valueZ = buttons;
-			lenZ = snprintf(newButtons, BUTTONS_MAX_LEN, "%d", valueZ);
-			newDataZ.info_data = (uint8_t*)newButtons;
-			newDataZ.data_len = lenZ;
-			UPDATE_BUTTONS(&cymote_service_handler, &newDataZ, cymote_connection_handle);
-
-			*/
+			valueZ = (uint16_t) buttons;
+			len = prepare_send_buffer(temp, valueX, valueY, valueZ);
+			status = at_ble_characteristic_value_set(cymote_handles.joystick_buttons_handle, temp, len);
+			
+			//time
+			valueX = time_ms;
+			len = prepare_send_buffer(temp, valueX, NULL, NULL);
+			status = at_ble_characteristic_value_set(cymote_handles.time_handle, temp, len);
+			
 		}
 		
 		/*
@@ -373,6 +360,25 @@ int main(void)
 		//printf("aX: %d, aY: %d, aZ: %d\r\n", accelerometer_data[0], accelerometer_data[1], accelerometer_data[2]);
 
     }
+}
+
+/* Helper function to put data into a buffer to be sent over BLE. Space delimited.
+   Returns the length of good data in buffer.
+*/
+uint8_t prepare_send_buffer(uint8_t buffer[DATA_BUFFER_LENGTH], uint16_t data1, uint16_t data2, uint16_t data3){
+	char temp1[DATA_BUFFER_LENGTH], temp2[DATA_BUFFER_LENGTH], temp3[DATA_BUFFER_LENGTH];
+	
+	uint8_t len1 = snprintf(temp1, DATA_BUFFER_LENGTH, "%d", data1);
+	uint8_t len2 = snprintf(temp2, DATA_BUFFER_LENGTH, "%d", data2);
+	uint8_t len3 = snprintf(temp3, DATA_BUFFER_LENGTH, "%d", data3);
+
+	memcpy(buffer, temp1, len1);
+	memcpy(buffer+len1, " ", 1);
+	memcpy(buffer+len1+1, temp2, len2);
+	memcpy(buffer+len1+len2+1, " ", 1);
+	memcpy(buffer+len1+len2+2, temp3, len3);
+
+	return len1+len2+len3+2;
 }
 
 

@@ -246,6 +246,9 @@ enum status_code adc_read(enum adc_input_channel input_channel, uint16_t *result
 
 	/* The transition of the ADC_DONE signal from LO to HI indicates that the
 	 * ADC conversion is done. */
+	while (adc_get_status() & LPMCU_MISC_REGS_SENS_ADC_RAW_STATUS_ADC_DONE) {
+		/* Waiting... */
+	}
 
 	while(!(adc_get_status() & LPMCU_MISC_REGS_SENS_ADC_RAW_STATUS_ADC_DONE)) {
 		/* Waiting... */

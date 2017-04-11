@@ -103,7 +103,7 @@ extern "C" {
 /// Connection interval min (N*1.250ms)
 #define AT_CNX_INTERVAL_MIN             (6)         //(0x06)
 /// Connection interval max (N*1.250ms)
-#define AT_CNX_INTERVAL_MAX             (3200)      //(0xC80)
+#define AT_CNX_INTERVAL_MAX             (7)      //(0xC80) used to be 3200
 /// Connection latency min (N*cnx evt)
 #define AT_CNX_LATENCY_MIN              (0)         //(0x00)
 /// Connection latency Max (N*cnx evt
