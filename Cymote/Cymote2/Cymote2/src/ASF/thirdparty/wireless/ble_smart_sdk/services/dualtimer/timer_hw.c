@@ -4,10 +4,6 @@
 
 extern struct uart_module uart_instance;
 
-void dualtimer_callback2(void)
-{
-	//puts("Timer2 trigger\r\n");
-}
 
 void hw_timer_init(void)
 {
@@ -20,10 +16,10 @@ void hw_timer_init(void)
 	dualtimer_init(&config_dualtimer);
 }
 
-void hw_timer_register_callback(hw_timer_callback_t timer_callback_handler)
+void hw_timer_register_callback(hw_timer_callback_t timer_1_callback_handler, hw_timer_callback_t timer_2_callback_handler)
 {
-	dualtimer_register_callback(DUALTIMER_TIMER1, timer_callback_handler);
-	dualtimer_register_callback(DUALTIMER_TIMER2, dualtimer_callback2);
+	dualtimer_register_callback(DUALTIMER_TIMER1, timer_1_callback_handler);
+	dualtimer_register_callback(DUALTIMER_TIMER2, timer_2_callback_handler);
 
 	dualtimer_disable(DUALTIMER_TIMER1);
 	dualtimer_disable(DUALTIMER_TIMER2);
@@ -31,17 +27,26 @@ void hw_timer_register_callback(hw_timer_callback_t timer_callback_handler)
 	NVIC_EnableIRQ(DUALTIMER0_IRQn);
 }
 
-void hw_timer_start(uint32_t delay)
+void hw_timer_start(uint32_t timer_1_delay, uint32_t timer_2_delay)
 {
-	if(delay <= 0) {
-		delay = 1;
+	if(timer_1_delay <= 0) {
+		timer_1_delay = 1;
 	}
 
-	dualtimer_set_counter(DUALTIMER_TIMER1, DUALTIMER_SET_CURRUNT_REG, CONF_DUALTIMER_TIMER1_LOAD*delay);
+	if(timer_2_delay <= 0) {
+		timer_2_delay = 1;
+	}
+
+	dualtimer_set_counter(DUALTIMER_TIMER1, DUALTIMER_SET_CURRUNT_REG, CONF_DUALTIMER_TIMER1_LOAD*timer_1_delay);
 	dualtimer_enable(DUALTIMER_TIMER1);
+
+	dualtimer_set_counter(DUALTIMER_TIMER2, DUALTIMER_SET_CURRUNT_REG, CONF_DUALTIMER_TIMER2_LOAD*timer_2_delay);
+	dualtimer_enable(DUALTIMER_TIMER2);
+
 }
 
 void hw_timer_stop(void)
 {
 	dualtimer_disable(DUALTIMER_TIMER1);
+	dualtimer_disable(DUALTIMER_TIMER2);
 }

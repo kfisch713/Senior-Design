@@ -27,6 +27,7 @@
 #define APP_ADV_TIMEOUT						(0)
 
 #define BLE_UPDATE_INTERVAL					(1)
+#define TIMER_UPDATE_IN_MS					(7) // 7 milliseconds
 
 /* number of cymote service characteristics. See cymote_characteristic_value_t */
 #define MAX_NUM_CHARACTERISTICS 5

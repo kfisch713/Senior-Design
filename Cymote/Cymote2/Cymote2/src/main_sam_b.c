@@ -74,6 +74,8 @@
 #define LENGTH_OF_DATA_IN_STRING_FORM 5
 
 uint8_t prepare_send_buffer(uint8_t buffer[DATA_BUFFER_LENGTH], uint16_t data1, uint16_t data2, uint16_t data3);
+uint8_t prepare_send_buffer_timer(uint8_t buffer[DATA_BUFFER_LENGTH], uint64_t data);
+
 
 /* Globals */
 cymote_service_handler_t cymote_service_handler;
@@ -84,18 +86,23 @@ uint16_t gyroscope_data[3];
 uint16_t magnetometer_data[3];
 uint16_t joystick_data[2];
 uint8_t buttons;
-uint8_t time_ms;
-bool volatile flag = true;
+uint64_t time_ms = 0;
 cymote_service_handler_t cymote_gatt_service_handle;
 
-/* timer callback function */
-static void timer_callback_fn(void)
+/* Blank BLE message timer callback function */
+static void ble_timer_callback_fn(void)
 {
 	/* Add timer callback functionality here */
 
 	//This breaks out of waiting for a BLE event
 	send_plf_int_msg_ind(USER_TIMER_CALLBACK, TIMER_EXPIRED_CALLBACK_TYPE_DETECT, NULL, 0);
-	DBG_LOG("timer callback\r\n");
+	DBG_LOG("BLE timer callback");
+}
+
+/* Counts time to send via BLE message */
+static void time_timer_callback_fn(void){
+	time_ms += TIMER_UPDATE_IN_MS;
+	//DBG_LOG("time timer callback");
 }
 
 static void button_cb(void)
@@ -169,8 +176,8 @@ int main(void)
 	
 	/* Hardware timer. */
 	hw_timer_init();
-	hw_timer_register_callback(timer_callback_fn);
-	hw_timer_start(BLE_UPDATE_INTERVAL);
+	hw_timer_register_callback(ble_timer_callback_fn, time_timer_callback_fn);
+	hw_timer_start(BLE_UPDATE_INTERVAL, TIMER_UPDATE_IN_MS);
 	
 	/* Button initialization. */
 	gpio_init();
@@ -264,9 +271,9 @@ int main(void)
 			joystick_data[0] = 42;
 			joystick_data[1] = 24;
 			buttons = 16;
-			time_ms = 111;
+			//time_ms = 111;
 			
-			//accelerometer
+			
 			uint8_t temp[DATA_BUFFER_LENGTH];
 			int i;
 			for(i=0;i<20;i++){
@@ -276,46 +283,28 @@ int main(void)
 			valueX = accelerometer_data[0];
 			valueY = accelerometer_data[1];
 			valueZ = accelerometer_data[2];
-			DBG_LOG("%d, %d, %d", valueX, valueY, valueZ);
 			len = prepare_send_buffer(temp, valueX, valueY, valueZ);
-			DBG_LOG("%s\r\n", temp);
-			//printf("%d", cymote_handles.accel_handle);
-			for(i=0;i<20;i++){
-				printf("%x ", temp[i]);
-			}
-			
 			status = at_ble_characteristic_value_set(cymote_handles.accel_handle, temp, len);
-			DBG_LOG("status 1: %x", status);			
+			DBG_LOG("status 1: %x", status);
+			//DBG_LOG("%s\r\n", temp);			
 			
 			//gyroscope
 			valueX = gyroscope_data[0];
 			valueY = gyroscope_data[1];
 			valueZ = gyroscope_data[2];
 			len = prepare_send_buffer(temp, valueX, valueY, valueZ);
-
-			DBG_LOG("%s\r\n", temp);
-			//printf("%d", cymote_handles.accel_handle);
-			for(i=0;i<20;i++){
-				printf("%x ", temp[i]);
-			}
-			
 			status = at_ble_characteristic_value_set(cymote_handles.gyro_handle, temp, len);
 			DBG_LOG("status 2: %x", status);
+			//DBG_LOG("%s\r\n", temp);
 
 			//magnetometer
 			valueX = magnetometer_data[0];
 			valueY = magnetometer_data[1];
 			valueZ = magnetometer_data[2];
 			len = prepare_send_buffer(temp, valueX, valueY, valueZ);
-			DBG_LOG("%s\r\n", temp);
-			//printf("%d", cymote_handles.accel_x_handle);
-			for(i=0;i<20;i++){
-				printf("%x ", temp[i]);
-			}
-			
 			status = at_ble_characteristic_value_set(cymote_handles.magnet_handle, temp, len);
 			DBG_LOG("status 3: %x", status);
-
+			//DBG_LOG("%s\r\n", temp);
 			
 			//joystick and buttons
 			valueX = joystick_data[0];
@@ -323,11 +312,15 @@ int main(void)
 			valueZ = (uint16_t) buttons;
 			len = prepare_send_buffer(temp, valueX, valueY, valueZ);
 			status = at_ble_characteristic_value_set(cymote_handles.joystick_buttons_handle, temp, len);
+			DBG_LOG("status 4: %x", status);
+			//DBG_LOG("%s\r\n", temp);
 			
 			//time
 			valueX = time_ms;
-			len = prepare_send_buffer(temp, valueX, NULL, NULL);
+			len = prepare_send_buffer_timer(temp, valueX);
 			status = at_ble_characteristic_value_set(cymote_handles.time_handle, temp, len);
+			DBG_LOG("status 5: %x", status);
+			DBG_LOG("%s\r\n", temp);
 			
 		}
 		
@@ -383,13 +376,41 @@ uint8_t prepare_send_buffer(uint8_t buffer[DATA_BUFFER_LENGTH], uint16_t data1, 
 	uint8_t len3 = snprintf(temp3, DATA_BUFFER_LENGTH, "%d", data3);
 
 	memcpy(buffer, temp1, len1);
+
+	if(data2 == NULL){
+		return len1;
+	}
+
 	memcpy(buffer+len1, " ", 1);
 	memcpy(buffer+len1+1, temp2, len2);
+
+	if(data3 == NULL){
+		return len1+len2+1;
+	}
+
 	memcpy(buffer+len1+len2+1, " ", 1);
 	memcpy(buffer+len1+len2+2, temp3, len3);
 
 	return len1+len2+len3+2;
 }
+
+/* Helper function to put data into a buffer to be sent over BLE. Space delimited.
+   This function is specifically for time b/c it takes a uint32_t.
+   Returns the length of good data in buffer.
+*/
+uint8_t prepare_send_buffer_timer(uint8_t buffer[DATA_BUFFER_LENGTH], uint64_t data){
+	int i;
+	for(i=0;i<DATA_BUFFER_LENGTH;i++){
+		buffer[i] = NULL;
+	}
+	char temp[DATA_BUFFER_LENGTH];
+	uint8_t len = snprintf(temp, DATA_BUFFER_LENGTH, "%x", data);
+	DBG_LOG("%d", len);
+	memcpy(buffer, temp, len);
+	return len;
+}
+
+
 
 
 

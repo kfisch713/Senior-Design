@@ -4,8 +4,8 @@
 typedef void (*hw_timer_callback_t)(void);
 
 void hw_timer_init(void);
-void hw_timer_register_callback(hw_timer_callback_t cb_ptr);
-void hw_timer_start(uint32_t delay);
+void hw_timer_register_callback(hw_timer_callback_t timer_1_callback_handler, hw_timer_callback_t timer_2_callback_handler);
+void hw_timer_start(uint32_t timer_1_delay, uint32_t timer_2_delay);
 void hw_timer_stop(void);
 
 void dualtimer_callback2(void);
