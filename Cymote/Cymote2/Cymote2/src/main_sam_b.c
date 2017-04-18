@@ -68,6 +68,7 @@
 #include "button.h"
 #include "console_serial.h"
 #include "time.h"
+#include <stdint.h>
 
 #define USE_BLE 1
 #define DATA_BUFFER_LENGTH 20
@@ -101,7 +102,7 @@ static void ble_timer_callback_fn(void)
 
 /* Counts time to send via BLE message */
 static void time_timer_callback_fn(void){
-	time_ms += TIMER_UPDATE_IN_MS;
+	time_ms += TIMER_UPDATE_IN_MS*300;
 	//DBG_LOG("time timer callback");
 }
 
@@ -316,8 +317,7 @@ int main(void)
 			//DBG_LOG("%s\r\n", temp);
 			
 			//time
-			valueX = time_ms;
-			len = prepare_send_buffer_timer(temp, valueX);
+			len = prepare_send_buffer_timer(temp, time_ms);
 			status = at_ble_characteristic_value_set(cymote_handles.time_handle, temp, len);
 			DBG_LOG("status 5: %x", status);
 			DBG_LOG("%s\r\n", temp);
@@ -404,8 +404,13 @@ uint8_t prepare_send_buffer_timer(uint8_t buffer[DATA_BUFFER_LENGTH], uint64_t d
 		buffer[i] = NULL;
 	}
 	char temp[DATA_BUFFER_LENGTH];
-	uint8_t len = snprintf(temp, DATA_BUFFER_LENGTH, "%x", data);
-	DBG_LOG("%d", len);
+	uint8_t len = snprintf(temp, DATA_BUFFER_LENGTH, "%x %x %x %x", (uint16_t)(data>>48), (uint16_t)(data>>32), (uint16_t)(data>>16), (uint16_t)data);
+	//uint8_t len = 8;
+	//if(data & 0xFFFFFFFFFFFF0000LL)
+	//	/*uint8_t len = */snprintf(temp, DATA_BUFFER_LENGTH, "%ld", (int32_t)data);
+	//else
+	//	snprintf(temp, DATA_BUFFER_LENGTH, "Small data");
+	DBG_LOG("len %d", len);
 	memcpy(buffer, temp, len);
 	return len;
 }
