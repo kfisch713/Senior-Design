@@ -195,8 +195,8 @@
         <board id="board.samb11_xplained_pro" value="Add" config="" content-id="Atmel.ASF" />
       </framework-data>
     </AsfFrameworkConfig>
-    <avrtool>com.atmel.avrdbg.tool.edbg</avrtool>
-    <avrtoolserialnumber>ATML2534030200000676</avrtoolserialnumber>
+    <avrtool>com.atmel.avrdbg.tool.atmelice</avrtool>
+    <avrtoolserialnumber>J41800049967</avrtoolserialnumber>
     <avrdeviceexpectedsignature>0x2000B0</avrdeviceexpectedsignature>
     <avrtoolinterface>SWD</avrtoolinterface>
     <com_atmel_avrdbg_tool_edbg>
@@ -210,16 +210,16 @@
       <ToolNumber>ATML2534030200000676</ToolNumber>
       <ToolName>EDBG</ToolName>
     </com_atmel_avrdbg_tool_edbg>
-    <avrtoolinterfaceclock>2000000</avrtoolinterfaceclock>
+    <avrtoolinterfaceclock>1900000</avrtoolinterfaceclock>
     <com_atmel_avrdbg_tool_atmelice>
       <ToolOptions>
         <InterfaceProperties>
-          <SwdClock>0</SwdClock>
+          <SwdClock>1900000</SwdClock>
         </InterfaceProperties>
         <InterfaceName>SWD</InterfaceName>
       </ToolOptions>
       <ToolType>com.atmel.avrdbg.tool.atmelice</ToolType>
-      <ToolNumber>J41800038239</ToolNumber>
+      <ToolNumber>J41800049967</ToolNumber>
       <ToolName>Atmel-ICE</ToolName>
     </com_atmel_avrdbg_tool_atmelice>
     <custom>
@@ -1041,6 +1041,12 @@
     <None Include="src\config\conf_console_serial.h">
       <SubType>compile</SubType>
     </None>
+    <Compile Include="src\LED.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\LED.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\LSM9DS0.c">
       <SubType>compile</SubType>
     </Compile>

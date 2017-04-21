@@ -69,8 +69,10 @@
 #include "console_serial.h"
 #include "time.h"
 #include <stdint.h>
+#include "LED.h"
 
 #define USE_BLE 1
+#define USE_9OF 1
 #define DATA_BUFFER_LENGTH 20
 #define LENGTH_OF_DATA_IN_STRING_FORM 5
 
@@ -164,16 +166,18 @@ int main(void)
 	uint16_t valueX, valueY, valueZ;
 	uint8_t len;
 
+	bool red, blue, green;
+
+	/* LED initialization */
+	setup_LED();
 
     /* Initialize the SAM system */
-	
 	platform_driver_init();
 	acquire_sleep_lock();
 	system_clock_config(CLOCK_RESOURCE_XO_26_MHZ, CLOCK_FREQ_26_MHZ);
 
 	/* Initialize serial console. */
 	serial_console_init();
-	//configure_console(&console_instance);
 	
 	/* Hardware timer. */
 	hw_timer_init();
@@ -182,33 +186,39 @@ int main(void)
 	
 	/* Button initialization. */
 	gpio_init();
-	button_init();
-	button_register_callback(button_cb);
+	//button_init();
+	//button_register_callback(button_cb);
 
 	/* LSM9DS0 gpio configuration. */
-	configure_gpio();
+	if(USE_9OF){
+		red = true;
+		green = true;
+		blue = false;
+		
+		configure_gpio();
+		
 
-	/* Start up SPI and read the status register. */
-	uint8_t receive = 0x00;
-	ag_read_byte(WHO_AM_I_XM);
-	receive = ag_read_byte(WHO_AM_I_XM);
-	printf("Should be 0x68: 0x%x\r\n", receive);
+		/* Start up SPI and read the status register. */
+		uint8_t receive = 0x00;
+		ag_read_byte(WHO_AM_I_XM);
+		receive = ag_read_byte(WHO_AM_I_XM);
+		printf("Should be 0x68: 0x%x\r\n", receive);
 
-	/* Initialize accelerometer control registers. */
-	init_accelerometer();
-	//init_accelerometer_odr(A_ODR_100);
-	//init_accelerometer_scale(A_SCALE_6G);
+		/* Initialize accelerometer control registers. */
+		init_accelerometer();
+		//init_accelerometer_odr(A_ODR_100);
+		//init_accelerometer_scale(A_SCALE_6G);
 	
-	/* Initialize magnetometer control registers. */
-	init_magnetometer();
-	//init_magnetometer_odr(M_ODR_100);
-	//init_magnetometer_scale(M_SCALE_2GS);
+		/* Initialize magnetometer control registers. */
+		init_magnetometer();
+		//init_magnetometer_odr(M_ODR_100);
+		//init_magnetometer_scale(M_SCALE_2GS);
 	
-	/* Initialize gyroscope control registers. */
-	init_gyroscope();
-	//init_gyroscope_odr(G_ODR_190_BW_125);
-	//init_gyroscope_scale(G_SCALE_2000DPS);
-	
+		/* Initialize gyroscope control registers. */
+		init_gyroscope();
+		//init_gyroscope_odr(G_ODR_190_BW_125);
+		//init_gyroscope_scale(G_SCALE_2000DPS);
+	}
 	
 	if(USE_BLE){
 		DBG_LOG("Initializing BLE Application");
@@ -239,8 +249,14 @@ int main(void)
 	}
 
 	/* Initialize Joystick registers. */ 
-	configure_adc_pin3();
-	configure_adc_pin4();
+	//configure_adc_pin3();
+	//configure_adc_pin4();
+
+	//if it changes to green, then the board has made it into the while loop
+	red = false;
+	green = true;
+	blue = false;
+	set_LED(red, green, blue); //green
 
     /* Main working loop. */
     while (1) 
@@ -250,30 +266,32 @@ int main(void)
 			ble_event_task(BLE_EVENT_TIMEOUT);
 		
 			/* Update BLE data */
-			get_raw_accelerometer(accelerometer_data);
-			get_raw_gyroscope(gyroscope_data);
-			get_raw_magnetometer(magnetometer_data);
+			if(USE_9OF){
+				get_raw_accelerometer(accelerometer_data);
+				get_raw_gyroscope(gyroscope_data);
+				get_raw_magnetometer(magnetometer_data);
+			}
+			else{
+				//dummy data
+				accelerometer_data[0] = 10000;
+				accelerometer_data[1] = 10001;
+				accelerometer_data[2] = 10002;
+				gyroscope_data[0] = 123;
+				gyroscope_data[1] = 456;
+				gyroscope_data[2] = 789;
+				magnetometer_data[0] = 30000;
+				magnetometer_data[1] = 30001;
+				magnetometer_data[2] = 30002;
+				joystick_data[0] = 42;
+				joystick_data[1] = 24;
+				buttons = 16;
+				time_ms = 111;
+			}
 			//do {
 			//} while (adc_read(ADC_INPUT_CH_GPIO_MS1, &joystick_data[0]) == STATUS_BUSY);
 			//do {
 			//} while (adc_read(ADC_INPUT_CH_GPIO_MS2, &joystick_data[1]) == STATUS_BUSY);
 			//get_button_data(buttons);
-
-			//use this to send dummy data. comment out the line you actually want to use
-			//accelerometer_data[0] = 10000;
-			//accelerometer_data[1] = 10001;
-			//accelerometer_data[2] = 10002;
-			//gyroscope_data[0] = 123;
-			//gyroscope_data[1] = 456;
-			//gyroscope_data[2] = 789;
-			//magnetometer_data[0] = 30000;
-			//magnetometer_data[1] = 30001;
-			//magnetometer_data[2] = 30002;
-			joystick_data[0] = 42;
-			joystick_data[1] = 24;
-			buttons = 16;
-			//time_ms = 111;
-			
 			
 			uint8_t temp[DATA_BUFFER_LENGTH];
 			int i;
@@ -322,8 +340,10 @@ int main(void)
 			DBG_LOG("status 5: %x", status);
 			DBG_LOG("%s\r\n", temp);
 			
+			set_LED(false, false, true);
 		}
-		
+		set_LED(true, true, false); //yellow
+		 
 		/*
 		do {
 		} while (adc_read(ADC_INPUT_CH_GPIO_MS1, &result) == STATUS_BUSY);
@@ -334,6 +354,12 @@ int main(void)
 		configure_adc_pin4();
 		//adc_read(ADC_INPUT_CH_GPIO_MS1, &result);
 		//adc_read(ADC_INPUT_CH_GPIO_MS2, &result2);
+		*/
+		
+
+		/*
+		result = 300;
+		result2 = 500;
 
 		if (result > 1000)
 		configure_pwm_from_duty_pin_10(99);
@@ -345,18 +371,14 @@ int main(void)
 		else
 		configure_pwm_from_duty_pin_11(result2 / 11);
 		*/
-
 		
 
-		/*
-		value = (uint8_t)(accelerometer_data[0] & 0x00FF);
-		len = snprintf(newValue, ACCEL_X_MAX_LEN, "%d", value);
-		printf("Accel X Low Byte: %s\r\n", newValue);
+		//red= true;
+		//green = false;
+		//blue = false;
+		//
+		//set_LED(red, green, blue);
 		
-		newData.info_data = (uint8_t*)newValue;
-		newData.data_len = len;
-		UPDATE_ACCEL_X_LOW_DATA(&cymote_service_handler, &newData, cymote_connection_handle);
-		*/
 
 
 
@@ -404,7 +426,7 @@ uint8_t prepare_send_buffer_timer(uint8_t buffer[DATA_BUFFER_LENGTH], uint64_t d
 		buffer[i] = NULL;
 	}
 	char temp[DATA_BUFFER_LENGTH];
-	uint8_t len = snprintf(temp, DATA_BUFFER_LENGTH, "%x %x %x %x", (uint16_t)(data>>48), (uint16_t)(data>>32), (uint16_t)(data>>16), (uint16_t)data);
+	uint8_t len = snprintf(temp, DATA_BUFFER_LENGTH, "%x%x%x%x", (uint16_t)(data>>48), (uint16_t)(data>>32), (uint16_t)(data>>16), (uint16_t)data);
 	//uint8_t len = 8;
 	//if(data & 0xFFFFFFFFFFFF0000LL)
 	//	/*uint8_t len = */snprintf(temp, DATA_BUFFER_LENGTH, "%ld", (int32_t)data);

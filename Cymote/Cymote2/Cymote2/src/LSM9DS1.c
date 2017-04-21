@@ -395,6 +395,17 @@ void configure_gpio(void)
 {
 	struct gpio_config config;
 	gpio_get_config_defaults(&config);
+
+	gpio_pinmux_cofiguration(AG_SSC_PIN, GPIO_PINMUX_SEL_2);
+	gpio_pinmux_cofiguration(AG_SCK_PIN, GPIO_PINMUX_SEL_2);
+	gpio_pinmux_cofiguration(AG_MISO_PIN, GPIO_PINMUX_SEL_2);
+	gpio_pinmux_cofiguration(AG_MOSI_PIN, GPIO_PINMUX_SEL_2);
+
+	gpio_pinmux_cofiguration(M_SSC_PIN, GPIO_PINMUX_SEL_0);
+	gpio_pinmux_cofiguration(M_SCK_PIN, GPIO_PINMUX_SEL_2);
+	gpio_pinmux_cofiguration(M_MISO_PIN, GPIO_PINMUX_SEL_2);
+	gpio_pinmux_cofiguration(M_MOSI_PIN, GPIO_PINMUX_SEL_2);
+
 	
 	/* Configure accelerometer/magnetometer Slave Select */
 	config.direction = GPIO_PIN_DIR_OUTPUT;
@@ -426,7 +437,7 @@ void configure_gpio(void)
 	config.direction = GPIO_PIN_DIR_INPUT;
 	config.input_pull = GPIO_PIN_PULL_UP;
 	gpio_pin_set_config(BUTTON_0_PIN, &config);
-	
+
 	gpio_pin_set_output_level(AG_SSC_PIN, HIGH);
 	gpio_pin_set_output_level(AG_SSC_PIN, LOW);
 	gpio_pin_set_output_level(AG_SSC_PIN, HIGH);
@@ -434,7 +445,4 @@ void configure_gpio(void)
 	gpio_pin_set_output_level(M_SSC_PIN, HIGH);
 	gpio_pin_set_output_level(M_SSC_PIN, LOW);
 	gpio_pin_set_output_level(M_SSC_PIN, HIGH);
-	
-	
-	puts("GPIO configured\r");
 }
