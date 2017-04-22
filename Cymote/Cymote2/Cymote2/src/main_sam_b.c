@@ -258,8 +258,12 @@ int main(void)
 	}
 
 	/* Initialize Joystick registers. */ 
-	//configure_adc_pin3();
-	//configure_adc_pin4();
+	configure_adc_4();
+	configure_adc_3();
+	configure_gpio_pins();
+
+	uint16_t adc4_result;
+	uint16_t adc3_result;
 
 	//if it changes to green, then the board has made it into the while loop
 	red = false;
@@ -299,11 +303,6 @@ int main(void)
 				buttons = 16;
 				time_ms = 111;
 			}
-			//do {
-			//} while (adc_read(ADC_INPUT_CH_GPIO_MS1, &joystick_data[0]) == STATUS_BUSY);
-			//do {
-			//} while (adc_read(ADC_INPUT_CH_GPIO_MS2, &joystick_data[1]) == STATUS_BUSY);
-			//get_button_data(buttons);
 			
 			uint8_t temp[DATA_BUFFER_LENGTH];
 			int i;
@@ -354,47 +353,82 @@ int main(void)
 			//DBG_LOG("%s", temp);
 		}
 		 
-		 
-		/*
-		do {
-		} while (adc_read(ADC_INPUT_CH_GPIO_MS1, &result) == STATUS_BUSY);
-		do {
-		} while (adc_read(ADC_INPUT_CH_GPIO_MS2, &result2) == STATUS_BUSY);
-		
-		configure_adc_pin3();
-		configure_adc_pin4();
-		//adc_read(ADC_INPUT_CH_GPIO_MS1, &result);
-		//adc_read(ADC_INPUT_CH_GPIO_MS2, &result2);
-		*/
-		
+		bool butt1_pin_state = gpio_pin_get_input_level(EXT1_PIN_6);
+		bool butt2_pin_state = gpio_pin_get_input_level(EXT1_PIN_9);
+		bool butt3_pin_state = gpio_pin_get_input_level(EXT1_PIN_12);
+		bool butt4_pin_state = gpio_pin_get_input_level(EXT3_PIN_5);
 
-		/*
-		result = 300;
-		result2 = 500;
+		if (butt1_pin_state){
 
-		if (result > 1000)
-		configure_pwm_from_duty_pin_10(99);
-		else
-		configure_pwm_from_duty_pin_10(result / 11);
-		
-		if (result2 > 1000)
-		configure_pwm_from_duty_pin_11(99);
-		else
-		configure_pwm_from_duty_pin_11(result2 / 11);
-		*/
-		
+			configure_adc_4();
+			configure_adc_3();
 
-		//red= true;
-		//green = false;
-		blue = true;
-		//
-		set_LED(red, green, blue);
-		
+			// Read Horizontal
+			do {
+			} while (adc_read(ADC_INPUT_CH_GPIO_MS1, &adc3_result) == STATUS_BUSY);
 
+			// Read Vertical
+			do{
+			}while (adc_read(ADC_INPUT_CH_GPIO_MS2, &adc4_result) == STATUS_BUSY);
 
+			int delay = adc3_result * 300;
+			while (delay > 0){
+				delay--;
+			}
+			
+			red = true;
+			set_LED(red, green, blue);
 
-		//printf("aX: %d, aY: %d, aZ: %d\r\n", accelerometer_data[0], accelerometer_data[1], accelerometer_data[2]);
+			delay = adc3_result * 300;
+			while (delay > 0){
+				delay--;
+			}
+			
+			red = false;
+			set_LED(red, green, blue);
 
+			if (adc4_result > 2000){
+				green = true;
+				set_LED(red, green, blue);
+			}
+			else{
+				green = false;
+				set_LED(red, green, blue);
+			}
+			if (adc4_result < 500){
+				blue = true;
+				set_LED(red, green, blue);
+			}
+			else{
+				blue = false;
+				set_LED(red, green, blue);
+			}
+		}
+		else{
+			if (butt2_pin_state){
+				red = true;
+				set_LED(red, green, blue);
+				}else{
+				red = false;
+				set_LED(red, green, blue);
+			}
+			
+			if (butt3_pin_state){
+				green = true;
+				set_LED(red, green, blue);
+				}else{
+				green = false;
+				set_LED(red, green, blue);
+			}
+			
+			if (butt4_pin_state){
+				blue = true;
+				set_LED(red, green, blue);
+				}else{
+				blue = false;
+				set_LED(red, green, blue);
+			}
+		}
     }
 }
 
