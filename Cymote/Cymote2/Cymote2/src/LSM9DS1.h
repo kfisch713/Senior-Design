@@ -29,15 +29,28 @@
 #define CTRL_REG5_M     0x24
 #define OUT_X_L_M       0x28
 
+/* There isn't any difference but if there needs to be, then it is setup. */
+#if ALPHA_CONNECTIONS
+//Cymote Alpha
 #define AG_SSC_PIN  PIN_LP_GPIO_12 /* EXT1 15 CSXM  */
 #define AG_SCK_PIN  PIN_LP_GPIO_10 /* EXT1 18 SCL   */
 #define AG_MISO_PIN PIN_LP_GPIO_13 /* EXT1 17 SDOXM */
 #define AG_MOSI_PIN PIN_LP_GPIO_11 /* EXT1 16 SDA   */
-
 #define M_SSC_PIN	PIN_LP_GPIO_16 /* EXT3 15 CSG  */
 #define M_SCK_PIN	PIN_LP_GPIO_10 /* EXT1 18 SCL  */
 #define M_MISO_PIN	PIN_LP_GPIO_13 /* EXT1 17 SDOXM */
 #define M_MOSI_PIN	PIN_LP_GPIO_11 /* EXT1 16 SDA  */
+#else
+//Cymote Demo
+#define AG_SSC_PIN  PIN_LP_GPIO_12 /* EXT1 15 CSXM  */
+#define AG_SCK_PIN  PIN_LP_GPIO_10 /* EXT1 18 SCL   */
+#define AG_MISO_PIN PIN_LP_GPIO_13 /* EXT1 17 SDOXM */
+#define AG_MOSI_PIN PIN_LP_GPIO_11 /* EXT1 16 SDA   */
+#define M_SSC_PIN	PIN_LP_GPIO_16 /* EXT3 15 CSG  */
+#define M_SCK_PIN	PIN_LP_GPIO_10 /* EXT1 18 SCL  */
+#define M_MISO_PIN	PIN_LP_GPIO_13 /* EXT1 17 SDOXM */
+#define M_MOSI_PIN	PIN_LP_GPIO_11 /* EXT1 16 SDA  */
+#endif
 
 /*
  * Transfers a byte to the device and reads and returns the byte transfered

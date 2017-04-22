@@ -48,6 +48,7 @@
 #define __BLE_UTILS_H__
 
 #include <asf.h>
+#include "cymote_selector.h"
 
     /// Observer role
 #define   BLE_ROLE_OBSERVER   0x01

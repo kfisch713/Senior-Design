@@ -31,7 +31,7 @@
 	gpio_pin_set_config(GREEN_GPIO, &config);
 	gpio_pin_set_config(BLUE_GPIO, &config);
 
-	//default value
+	//default value. active low.
 	gpio_pin_set_output_level(RED_GPIO, LOW);
 	gpio_pin_set_output_level(GREEN_GPIO, HIGH);
 	gpio_pin_set_output_level(BLUE_GPIO, HIGH);

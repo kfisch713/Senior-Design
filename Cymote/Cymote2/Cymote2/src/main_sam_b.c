@@ -70,14 +70,15 @@
 #include "time.h"
 #include <stdint.h>
 #include "LED.h"
+#include "cymote_selector.h"
 
-#define USE_BLE 1
-#define USE_9OF 1
+
 #define DATA_BUFFER_LENGTH 20
 #define LENGTH_OF_DATA_IN_STRING_FORM 5
 
 uint8_t prepare_send_buffer(uint8_t buffer[DATA_BUFFER_LENGTH], uint16_t data1, uint16_t data2, uint16_t data3);
 uint8_t prepare_send_buffer_timer(uint8_t buffer[DATA_BUFFER_LENGTH], uint64_t data);
+void default_gpio_pin_set(void);
 
 
 /* Globals */
@@ -105,7 +106,7 @@ static void ble_timer_callback_fn(void)
 /* Counts time to send via BLE message */
 static void time_timer_callback_fn(void){
 	time_ms += TIMER_UPDATE_IN_MS*300;
-	//DBG_LOG("time timer callback");
+	DBG_LOG("time timer callback");
 }
 
 static void button_cb(void)
@@ -168,6 +169,12 @@ int main(void)
 
 	bool red, blue, green;
 
+	//if using Cymote Beta then set the gpio muxes
+	if(!ALPHA_CONNECTIONS){
+		default_gpio_pin_set();
+	}
+	
+
 	/* LED initialization */
 	setup_LED();
 
@@ -177,7 +184,9 @@ int main(void)
 	system_clock_config(CLOCK_RESOURCE_XO_26_MHZ, CLOCK_FREQ_26_MHZ);
 
 	/* Initialize serial console. */
+	//BLE uses DBG_LOG a lot which requires serial_console_init() to be called before it.
 	serial_console_init();
+	
 	
 	/* Hardware timer. */
 	hw_timer_init();
@@ -186,10 +195,10 @@ int main(void)
 	
 	/* Button initialization. */
 	gpio_init();
-	//button_init();
-	//button_register_callback(button_cb);
+	button_init();
+	button_register_callback(button_cb);
 
-	/* LSM9DS0 gpio configuration. */
+	/* LSM9DS0 S configuration. */
 	if(USE_9OF){
 		red = true;
 		green = true;
@@ -304,7 +313,7 @@ int main(void)
 			valueZ = accelerometer_data[2];
 			len = prepare_send_buffer(temp, valueX, valueY, valueZ);
 			status = at_ble_characteristic_value_set(cymote_handles.accel_handle, temp, len);
-			DBG_LOG("status 1: %x", status);
+			//DBG_LOG("status 1: %x", status);
 			//DBG_LOG("%s\r\n", temp);			
 			
 			//gyroscope
@@ -313,7 +322,7 @@ int main(void)
 			valueZ = gyroscope_data[2];
 			len = prepare_send_buffer(temp, valueX, valueY, valueZ);
 			status = at_ble_characteristic_value_set(cymote_handles.gyro_handle, temp, len);
-			DBG_LOG("status 2: %x", status);
+			//DBG_LOG("status 2: %x", status);
 			//DBG_LOG("%s\r\n", temp);
 
 			//magnetometer
@@ -322,7 +331,7 @@ int main(void)
 			valueZ = magnetometer_data[2];
 			len = prepare_send_buffer(temp, valueX, valueY, valueZ);
 			status = at_ble_characteristic_value_set(cymote_handles.magnet_handle, temp, len);
-			DBG_LOG("status 3: %x", status);
+			//DBG_LOG("status 3: %x", status);
 			//DBG_LOG("%s\r\n", temp);
 			
 			//joystick and buttons
@@ -331,18 +340,18 @@ int main(void)
 			valueZ = (uint16_t) buttons;
 			len = prepare_send_buffer(temp, valueX, valueY, valueZ);
 			status = at_ble_characteristic_value_set(cymote_handles.joystick_buttons_handle, temp, len);
-			DBG_LOG("status 4: %x", status);
+			//DBG_LOG("status 4: %x", status);
 			//DBG_LOG("%s\r\n", temp);
 			
 			//time
 			len = prepare_send_buffer_timer(temp, time_ms);
 			status = at_ble_characteristic_value_set(cymote_handles.time_handle, temp, len);
-			DBG_LOG("status 5: %x", status);
-			DBG_LOG("%s\r\n", temp);
+			//DBG_LOG("status 5: %x", status);
+			//DBG_LOG("%s\r\n", temp);
 			
-			set_LED(false, false, true);
+			
 		}
-		set_LED(true, true, false); //yellow
+		 
 		 
 		/*
 		do {
@@ -432,9 +441,84 @@ uint8_t prepare_send_buffer_timer(uint8_t buffer[DATA_BUFFER_LENGTH], uint64_t d
 	//	/*uint8_t len = */snprintf(temp, DATA_BUFFER_LENGTH, "%ld", (int32_t)data);
 	//else
 	//	snprintf(temp, DATA_BUFFER_LENGTH, "Small data");
-	DBG_LOG("len %d", len);
+	//DBG_LOG("len %d", len);
 	memcpy(buffer, temp, len);
 	return len;
+}
+
+void default_gpio_pin_set(){
+	struct gpio_config config;
+	gpio_get_config_defaults(&config);
+
+	//see the pinout datasheet
+	gpio_pinmux_cofiguration(PIN_LP_GPIO_0,  GPIO_PINMUX_SEL_2);
+	gpio_pinmux_cofiguration(PIN_LP_GPIO_1,  GPIO_PINMUX_SEL_2);
+	gpio_pinmux_cofiguration(PIN_LP_GPIO_2,  GPIO_PINMUX_SEL_0);
+	gpio_pinmux_cofiguration(PIN_LP_GPIO_3,  GPIO_PINMUX_SEL_0);
+	gpio_pinmux_cofiguration(PIN_LP_GPIO_4,  GPIO_PINMUX_SEL_0);
+	gpio_pinmux_cofiguration(PIN_LP_GPIO_5,  GPIO_PINMUX_SEL_0);
+	gpio_pinmux_cofiguration(PIN_LP_GPIO_6,  GPIO_PINMUX_SEL_0);
+	gpio_pinmux_cofiguration(PIN_LP_GPIO_7,  GPIO_PINMUX_SEL_0);
+	gpio_pinmux_cofiguration(PIN_LP_GPIO_8,  GPIO_PINMUX_SEL_0);
+	gpio_pinmux_cofiguration(PIN_LP_GPIO_9,  GPIO_PINMUX_SEL_0);
+	gpio_pinmux_cofiguration(PIN_LP_GPIO_10, GPIO_PINMUX_SEL_2);
+	gpio_pinmux_cofiguration(PIN_LP_GPIO_11, GPIO_PINMUX_SEL_2);
+	gpio_pinmux_cofiguration(PIN_LP_GPIO_12, GPIO_PINMUX_SEL_2);
+	gpio_pinmux_cofiguration(PIN_LP_GPIO_13, GPIO_PINMUX_SEL_2);
+	gpio_pinmux_cofiguration(PIN_LP_GPIO_14, GPIO_PINMUX_SEL_0);
+	gpio_pinmux_cofiguration(PIN_LP_GPIO_15, GPIO_PINMUX_SEL_0);
+	gpio_pinmux_cofiguration(PIN_LP_GPIO_16, GPIO_PINMUX_SEL_0);
+	gpio_pinmux_cofiguration(PIN_LP_GPIO_17, GPIO_PINMUX_SEL_0);
+	gpio_pinmux_cofiguration(PIN_LP_GPIO_18, GPIO_PINMUX_SEL_0);
+	gpio_pinmux_cofiguration(PIN_LP_GPIO_19, GPIO_PINMUX_SEL_0);
+	gpio_pinmux_cofiguration(PIN_LP_GPIO_20, GPIO_PINMUX_SEL_0);
+	gpio_pinmux_cofiguration(PIN_LP_GPIO_22, GPIO_PINMUX_SEL_0);
+	gpio_pinmux_cofiguration(PIN_LP_GPIO_23, GPIO_PINMUX_SEL_0);
+	gpio_pinmux_cofiguration(PIN_AO_GPIO_0,  GPIO_PINMUX_SEL_0);
+	gpio_pinmux_cofiguration(PIN_AO_GPIO_1,  GPIO_PINMUX_SEL_0);
+	gpio_pinmux_cofiguration(PIN_AO_GPIO_2,  GPIO_PINMUX_SEL_0);
+	gpio_pinmux_cofiguration(PIN_GPIO_MS1,   GPIO_PINMUX_SEL_0);
+	gpio_pinmux_cofiguration(PIN_GPIO_MS2,   GPIO_PINMUX_SEL_0);
+	gpio_pinmux_cofiguration(PIN_GPIO_MS3,   GPIO_PINMUX_SEL_0);
+	gpio_pinmux_cofiguration(PIN_GPIO_MS4,   GPIO_PINMUX_SEL_0);
+
+
+
+	//setup pins as input by default. they can be changed later.
+	config.direction = GPIO_PIN_DIR_INPUT;
+	config.input_pull = GPIO_PIN_PULL_NONE;
+	gpio_pin_set_config(PIN_LP_GPIO_0,  &config);
+	gpio_pin_set_config(PIN_LP_GPIO_1,  &config);
+	gpio_pin_set_config(PIN_LP_GPIO_2,  &config);
+	gpio_pin_set_config(PIN_LP_GPIO_3,  &config);
+	gpio_pin_set_config(PIN_LP_GPIO_4,  &config);
+	gpio_pin_set_config(PIN_LP_GPIO_5,  &config);
+	gpio_pin_set_config(PIN_LP_GPIO_6,  &config);
+	gpio_pin_set_config(PIN_LP_GPIO_7,  &config);
+	gpio_pin_set_config(PIN_LP_GPIO_8,  &config);
+	gpio_pin_set_config(PIN_LP_GPIO_9,  &config);
+	gpio_pin_set_config(PIN_LP_GPIO_10, &config);
+	gpio_pin_set_config(PIN_LP_GPIO_11, &config);
+	gpio_pin_set_config(PIN_LP_GPIO_12, &config);
+	gpio_pin_set_config(PIN_LP_GPIO_13, &config);
+	gpio_pin_set_config(PIN_LP_GPIO_14, &config);
+	gpio_pin_set_config(PIN_LP_GPIO_15, &config);
+	gpio_pin_set_config(PIN_LP_GPIO_16, &config);
+	gpio_pin_set_config(PIN_LP_GPIO_17, &config);
+	gpio_pin_set_config(PIN_LP_GPIO_18, &config);
+	gpio_pin_set_config(PIN_LP_GPIO_19, &config);
+	gpio_pin_set_config(PIN_LP_GPIO_20, &config);
+	gpio_pin_set_config(PIN_LP_GPIO_22, &config);
+	gpio_pin_set_config(PIN_LP_GPIO_23, &config);
+	gpio_pin_set_config(PIN_AO_GPIO_0,  &config);
+	gpio_pin_set_config(PIN_AO_GPIO_1,  &config);
+	gpio_pin_set_config(PIN_AO_GPIO_2,  &config);
+	gpio_pin_set_config(PIN_GPIO_MS1,   &config);
+	gpio_pin_set_config(PIN_GPIO_MS2,   &config);
+	gpio_pin_set_config(PIN_GPIO_MS3,   &config);
+	gpio_pin_set_config(PIN_GPIO_MS4,   &config);
+
+	
 }
 
 

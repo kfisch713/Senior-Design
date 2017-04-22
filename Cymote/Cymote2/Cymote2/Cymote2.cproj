@@ -195,8 +195,8 @@
         <board id="board.samb11_xplained_pro" value="Add" config="" content-id="Atmel.ASF" />
       </framework-data>
     </AsfFrameworkConfig>
-    <avrtool>com.atmel.avrdbg.tool.atmelice</avrtool>
-    <avrtoolserialnumber>J41800049967</avrtoolserialnumber>
+    <avrtool>com.atmel.avrdbg.tool.edbg</avrtool>
+    <avrtoolserialnumber>ATML2534030200000676</avrtoolserialnumber>
     <avrdeviceexpectedsignature>0x2000B0</avrdeviceexpectedsignature>
     <avrtoolinterface>SWD</avrtoolinterface>
     <com_atmel_avrdbg_tool_edbg>
@@ -210,11 +210,11 @@
       <ToolNumber>ATML2534030200000676</ToolNumber>
       <ToolName>EDBG</ToolName>
     </com_atmel_avrdbg_tool_edbg>
-    <avrtoolinterfaceclock>1900000</avrtoolinterfaceclock>
+    <avrtoolinterfaceclock>2000000</avrtoolinterfaceclock>
     <com_atmel_avrdbg_tool_atmelice>
       <ToolOptions>
         <InterfaceProperties>
-          <SwdClock>1900000</SwdClock>
+          <SwdClock>0</SwdClock>
         </InterfaceProperties>
         <InterfaceName>SWD</InterfaceName>
       </ToolOptions>
@@ -1041,6 +1041,9 @@
     <None Include="src\config\conf_console_serial.h">
       <SubType>compile</SubType>
     </None>
+    <Compile Include="src\cymote_selector.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\LED.c">
       <SubType>compile</SubType>
     </Compile>
