@@ -90,7 +90,7 @@ uint16_t gyroscope_data[3];
 uint16_t magnetometer_data[3];
 uint16_t joystick_data[2];
 uint8_t buttons;
-uint64_t time_ms = 0;
+volatile uint64_t time_ms = 0;
 cymote_service_handler_t cymote_gatt_service_handle;
 
 /* Blank BLE message timer callback function */
@@ -100,13 +100,13 @@ static void ble_timer_callback_fn(void)
 
 	//This breaks out of waiting for a BLE event
 	send_plf_int_msg_ind(USER_TIMER_CALLBACK, TIMER_EXPIRED_CALLBACK_TYPE_DETECT, NULL, 0);
-	DBG_LOG("BLE timer callback");
+	//DBG_LOG("BLE timer callback");
 }
 
 /* Counts time to send via BLE message */
 static void time_timer_callback_fn(void){
-	time_ms += TIMER_UPDATE_IN_MS*300;
-	DBG_LOG("time timer callback");
+	time_ms += TIMER_UPDATE_IN_MS;
+	//DBG_LOG("time timer callback");
 }
 
 static void button_cb(void)
@@ -241,11 +241,11 @@ int main(void)
 		}
 		addr.addr[0] = 2;
 		ble_device_init(&addr);
-		DBG_LOG("made it past ble device init\n");
+		DBG_LOG("made it past ble device init");
 
 
 		if((status = cymote_service_init(&cymote_service, &cymote_data, &cymote_handles)) != AT_BLE_SUCCESS){
-			DBG_LOG("Service definition failed,reason %x", status);
+			DBG_LOG("Service definition failed, reason %x", status);
 		}
 		else {
 			DBG_LOG("Service definition success");
@@ -279,6 +279,9 @@ int main(void)
 				get_raw_accelerometer(accelerometer_data);
 				get_raw_gyroscope(gyroscope_data);
 				get_raw_magnetometer(magnetometer_data);
+				joystick_data[0] = 42;
+				joystick_data[1] = 24;
+				buttons = 16;
 			}
 			else{
 				//dummy data
@@ -314,7 +317,7 @@ int main(void)
 			len = prepare_send_buffer(temp, valueX, valueY, valueZ);
 			status = at_ble_characteristic_value_set(cymote_handles.accel_handle, temp, len);
 			//DBG_LOG("status 1: %x", status);
-			//DBG_LOG("%s\r\n", temp);			
+			//DBG_LOG("%s", temp);			
 			
 			//gyroscope
 			valueX = gyroscope_data[0];
@@ -323,7 +326,7 @@ int main(void)
 			len = prepare_send_buffer(temp, valueX, valueY, valueZ);
 			status = at_ble_characteristic_value_set(cymote_handles.gyro_handle, temp, len);
 			//DBG_LOG("status 2: %x", status);
-			//DBG_LOG("%s\r\n", temp);
+			//DBG_LOG("%s", temp);
 
 			//magnetometer
 			valueX = magnetometer_data[0];
@@ -332,7 +335,7 @@ int main(void)
 			len = prepare_send_buffer(temp, valueX, valueY, valueZ);
 			status = at_ble_characteristic_value_set(cymote_handles.magnet_handle, temp, len);
 			//DBG_LOG("status 3: %x", status);
-			//DBG_LOG("%s\r\n", temp);
+			//DBG_LOG("%s", temp);
 			
 			//joystick and buttons
 			valueX = joystick_data[0];
@@ -341,15 +344,14 @@ int main(void)
 			len = prepare_send_buffer(temp, valueX, valueY, valueZ);
 			status = at_ble_characteristic_value_set(cymote_handles.joystick_buttons_handle, temp, len);
 			//DBG_LOG("status 4: %x", status);
-			//DBG_LOG("%s\r\n", temp);
+			//DBG_LOG("%s", temp);
 			
 			//time
+			//time updated from an interrupt
 			len = prepare_send_buffer_timer(temp, time_ms);
 			status = at_ble_characteristic_value_set(cymote_handles.time_handle, temp, len);
 			//DBG_LOG("status 5: %x", status);
-			//DBG_LOG("%s\r\n", temp);
-			
-			
+			//DBG_LOG("%s", temp);
 		}
 		 
 		 
@@ -384,9 +386,9 @@ int main(void)
 
 		//red= true;
 		//green = false;
-		//blue = false;
+		blue = true;
 		//
-		//set_LED(red, green, blue);
+		set_LED(red, green, blue);
 		
 
 
@@ -401,6 +403,7 @@ int main(void)
 */
 uint8_t prepare_send_buffer(uint8_t buffer[DATA_BUFFER_LENGTH], uint16_t data1, uint16_t data2, uint16_t data3){
 	char temp1[DATA_BUFFER_LENGTH], temp2[DATA_BUFFER_LENGTH], temp3[DATA_BUFFER_LENGTH];
+	memset(buffer, NULL, DATA_BUFFER_LENGTH);
 	
 	uint8_t len1 = snprintf(temp1, DATA_BUFFER_LENGTH, "%d", data1);
 	uint8_t len2 = snprintf(temp2, DATA_BUFFER_LENGTH, "%d", data2);
@@ -431,11 +434,10 @@ uint8_t prepare_send_buffer(uint8_t buffer[DATA_BUFFER_LENGTH], uint16_t data1, 
 */
 uint8_t prepare_send_buffer_timer(uint8_t buffer[DATA_BUFFER_LENGTH], uint64_t data){
 	int i;
-	for(i=0;i<DATA_BUFFER_LENGTH;i++){
-		buffer[i] = NULL;
-	}
+	memset(buffer, NULL, DATA_BUFFER_LENGTH);
+
 	char temp[DATA_BUFFER_LENGTH];
-	uint8_t len = snprintf(temp, DATA_BUFFER_LENGTH, "%x%x%x%x", (uint16_t)(data>>48), (uint16_t)(data>>32), (uint16_t)(data>>16), (uint16_t)data);
+	uint8_t len = snprintf(temp, DATA_BUFFER_LENGTH, "%04x%04x%04x%04x", (uint16_t)(data>>48), (uint16_t)(data>>32), (uint16_t)(data>>16), (uint16_t)data);
 	//uint8_t len = 8;
 	//if(data & 0xFFFFFFFFFFFF0000LL)
 	//	/*uint8_t len = */snprintf(temp, DATA_BUFFER_LENGTH, "%ld", (int32_t)data);

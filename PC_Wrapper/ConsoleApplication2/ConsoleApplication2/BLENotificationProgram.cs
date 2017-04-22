@@ -43,15 +43,14 @@ namespace ConsoleApplication2
         {
             GattReadResult result = null;
             BluetoothLEDevice device = await BluetoothLEDevice.FromBluetoothAddressAsync(000000000002);
-            
-            Console.WriteLine(device.Name);
 
             // Get the service containing our characteristic
             Guid ServiceId = new Guid("6D617931-3733-3500-0000-000000000000");
             GattDeviceService services = device.GetGattService(ServiceId);
 
-            string preAccData = "";
-            string curAccData = "";
+            string preTimeData = "";
+            string curTimeData = "";
+
 
             // This block assumes multiple characteristics and polls from each separate characteristic containing the needed data
             while (true)
@@ -66,19 +65,13 @@ namespace ConsoleApplication2
                         var dataReader = DataReader.FromBuffer(result.Value);
                         output = dataReader.ReadString(result.Value.Length);
                         //Console.WriteLine(output);
+                        
                     }
 
                     switch (gc.Uuid.ToString())
                     {
                         // AccelX AccelY AccelZ
                         case "01100000-0000-0000-0000-000000000000":
-                            curAccData = output;
-                            if (preAccData.Equals(curAccData))
-                                dataChanged = false;
-                            else
-                                dataChanged = true;
-                            preAccData = curAccData;
-
                             string[] AccelValues = output.Split(' ');
                             accel_x = AccelValues[0];
                             accel_y = AccelValues[1];
@@ -112,7 +105,15 @@ namespace ConsoleApplication2
 
                         // Time
                         case "05100000-0000-0000-0000-000000000000":
-                            time = output;
+                            curTimeData = output;
+                            if (preTimeData.Equals(curTimeData))
+                                dataChanged = false;
+                            else
+                                dataChanged = true;
+                            preTimeData = curTimeData;
+
+                            time = int.Parse(output, System.Globalization.NumberStyles.HexNumber).ToString();
+
                             break;
 
                         default:

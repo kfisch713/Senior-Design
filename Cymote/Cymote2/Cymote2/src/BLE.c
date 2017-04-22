@@ -144,13 +144,11 @@
 											     "Time"};
 
 	for(i=0;i<MAX_NUM_CHARACTERISTICS;i++){
-		DBG_LOG("Iteration: %d", i);
 		characteristic_descriptions[i].user_description = (uint8_t*)desc[i];
 		characteristic_descriptions[i].permissions = AT_BLE_ATTR_READABLE_NO_AUTHN_NO_AUTHR;
 		characteristic_descriptions[i].len = strlen(desc[i]);
-		DBG_LOG("%s, %d", desc[i], strlen(desc[i]));
 	}
-	DBG_LOG("out of loop");
+	
 
 	return;
 

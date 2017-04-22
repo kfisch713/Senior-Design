@@ -185,7 +185,7 @@
 
 /** @brief default device name */
 #ifndef BLE_DEVICE_NAME
-#define BLE_DEVICE_NAME				"Cymote Beta"
+#define BLE_DEVICE_NAME				"Cymote Demo"
 #endif
 
 #define GAP_HANDLE_FUNC_MAX 19
