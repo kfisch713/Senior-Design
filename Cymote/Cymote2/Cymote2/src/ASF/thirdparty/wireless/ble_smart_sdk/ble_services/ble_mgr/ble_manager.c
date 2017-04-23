@@ -1432,6 +1432,7 @@ at_ble_status_t ble_pair_done_handler(void *params)
 /** @brief function handles encryption status change */
 at_ble_status_t ble_encryption_status_change_handler(void *params)
 {
+
 	at_ble_encryption_status_changed_t *enc_status;
 	uint8_t idx;
 	bool device_found = false;
@@ -1469,6 +1470,7 @@ at_ble_status_t ble_encryption_status_change_handler(void *params)
 		DBG_LOG("Encryption failed");
 		return AT_BLE_FAILURE;
 	}
+	
 	return AT_BLE_SUCCESS;
 }
 

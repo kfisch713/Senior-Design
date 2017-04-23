@@ -220,7 +220,7 @@ namespace ConsoleApplication2
                         int[] bits = b.Cast<bool>().Select(bit => bit ? 1 : 0).ToArray();
 
                         // Button order: TBD by Kyle
-                        for (int i = 0; i < 5; i++)
+                        for (int i = 0; i < 4; i++)
                         {
                             sb.Append(bits[i] + ", ");
                         }

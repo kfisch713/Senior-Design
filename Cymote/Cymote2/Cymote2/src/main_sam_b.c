@@ -160,19 +160,17 @@ int main(void)
 	at_ble_status_t status;
 	at_ble_service_t cymote_service;
 	cymote_characteristic_handle_t cymote_handles;
-
-	//this is just creating the place in memory that everything will be stored in.
-	cymote_service_data_t cymote_data;
-
+	cymote_service_data_t cymote_data; //this is just creating the place in memory that everything will be stored in.
 	uint16_t valueX, valueY, valueZ;
 	uint8_t len;
-
+	uint8_t temp[DATA_BUFFER_LENGTH];
 	bool red, blue, green;
 	bool butt1_pin_state = false;
 	bool butt2_pin_state = false;
 	bool butt3_pin_state = false;
 	bool butt4_pin_state = false;
-	bool butt5_pin_state = false;
+	uint16_t adc4_result;
+	uint16_t adc3_result;
 
 	//if using Cymote Beta then set the gpio muxes
 	if(!ALPHA_CONNECTIONS){
@@ -208,10 +206,8 @@ int main(void)
 		red = true;
 		green = true;
 		blue = false;
-		
 		configure_gpio();
 		
-
 		/* Start up SPI and read the status register. */
 		uint8_t receive = 0x00;
 		ag_read_byte(WHO_AM_I_XM);
@@ -220,18 +216,12 @@ int main(void)
 
 		/* Initialize accelerometer control registers. */
 		init_accelerometer();
-		//init_accelerometer_odr(A_ODR_100);
-		//init_accelerometer_scale(A_SCALE_6G);
 	
 		/* Initialize magnetometer control registers. */
 		init_magnetometer();
-		//init_magnetometer_odr(M_ODR_100);
-		//init_magnetometer_scale(M_SCALE_2GS);
 	
 		/* Initialize gyroscope control registers. */
 		init_gyroscope();
-		//init_gyroscope_odr(G_ODR_190_BW_125);
-		//init_gyroscope_scale(G_SCALE_2000DPS);
 	}
 	
 	if(USE_BLE){
@@ -267,9 +257,6 @@ int main(void)
 	configure_adc_3();
 	configure_gpio_pins();
 
-	uint16_t adc4_result;
-	uint16_t adc3_result;
-
 	//if it changes to green, then the board has made it into the while loop
 	red = false;
 	green = true;
@@ -288,10 +275,13 @@ int main(void)
 				get_raw_accelerometer(accelerometer_data);
 				get_raw_gyroscope(gyroscope_data);
 				get_raw_magnetometer(magnetometer_data);
+				get_button_data(&butt1_pin_state, &butt2_pin_state, &butt3_pin_state, &butt4_pin_state);
 				joystick_data[0] = adc3_result;
 				joystick_data[1] = adc4_result;
 				buttons = 0; // reset
-				buttons = butt5_pin_state << 4 | butt4_pin_state << 3 | butt3_pin_state << 2 | butt2_pin_state << 1 | butt1_pin_state;
+				buttons = butt4_pin_state << 3 | butt3_pin_state << 2 | butt2_pin_state << 1 | butt1_pin_state;
+				//DBG_LOG("buttons: %d, 1: %d, 2: %d, 3: %d, 4: %d", buttons, butt1_pin_state, butt2_pin_state, butt3_pin_state, butt4_pin_state);
+				
 			}
 			else{
 				//dummy data
@@ -306,15 +296,12 @@ int main(void)
 				magnetometer_data[2] = 30002;
 				joystick_data[0] = 42;
 				joystick_data[1] = 24;
-				buttons = 16;
+				buttons = 4;
 				time_ms = 111;
 			}
 			
-			uint8_t temp[DATA_BUFFER_LENGTH];
-			int i;
-			for(i=0;i<20;i++){
-				temp[i] = NULL;
-			}
+			//reset temp
+			memset(temp, NULL, DATA_BUFFER_LENGTH);
 
 			valueX = accelerometer_data[0];
 			valueY = accelerometer_data[1];
@@ -359,11 +346,7 @@ int main(void)
 			//DBG_LOG("%s", temp);
 		}
 		 
-		butt1_pin_state = gpio_pin_get_input_level(BUTTON1);
-		butt2_pin_state = gpio_pin_get_input_level(BUTTON2);
-		butt3_pin_state = gpio_pin_get_input_level(BUTTON3);
-		butt4_pin_state = gpio_pin_get_input_level(BUTTON4);
-		butt5_pin_state = gpio_pin_get_input_level(BUTTON5);
+		
 
 		if (butt1_pin_state){
 			//reset the adc
@@ -451,18 +434,8 @@ uint8_t prepare_send_buffer(uint8_t buffer[DATA_BUFFER_LENGTH], uint16_t data1, 
 	uint8_t len3 = snprintf(temp3, DATA_BUFFER_LENGTH, "%d", data3);
 
 	memcpy(buffer, temp1, len1);
-
-	if(data2 == NULL){
-		return len1;
-	}
-
 	memcpy(buffer+len1, " ", 1);
 	memcpy(buffer+len1+1, temp2, len2);
-
-	if(data3 == NULL){
-		return len1+len2+1;
-	}
-
 	memcpy(buffer+len1+len2+1, " ", 1);
 	memcpy(buffer+len1+len2+2, temp3, len3);
 

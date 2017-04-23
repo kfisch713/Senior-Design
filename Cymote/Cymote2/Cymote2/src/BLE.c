@@ -41,8 +41,7 @@
 	DBG_LOG("made it past characteristic description init");
 	fflush(stdout);
 	
-	//characteristic presentation is null so it is being thrown into this loop. Consider bringing it out of the loop
-	//if it is going to be set to something.
+	//characteristic presentation
 	for(i=0;i<MAX_NUM_CHARACTERISTICS;i++){
 		data->characteristic_presentation[i].description = AT_BLE_PRES_FORMAT_UINT16; 
 		data->characteristic_presentation[i].exponent = 0; 
@@ -121,7 +120,6 @@
 		//DBG_LOG("Loop1: %d", i);
 		characteristic_uuids[i].type = AT_BLE_UUID_128;
 	}
-
 
 	for(i=0;i<16;i++){
 		//DBG_LOG("Loop2: %d", i);
@@ -229,7 +227,7 @@ void characteristic_attribute_descriptions_init(at_ble_generic_att_desc_t descri
  {
 	 //hw_timer_stop();
 	 //timer_cb_done = false;
-	 LED_Off(LED0);
+	 //LED_Off(LED0);
 	 device_information_advertise();
 	 ALL_UNUSED(param);
 	 return AT_BLE_SUCCESS;

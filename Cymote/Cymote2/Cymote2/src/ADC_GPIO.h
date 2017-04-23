@@ -7,7 +7,6 @@
 
  #include "LED.h"
  #include "Buttons.h"
- #include "adc_sam_b.h"
 
 #ifndef ADC_GPIO_H_
 #define ADC_GPIO_H_
