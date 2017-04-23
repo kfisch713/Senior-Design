@@ -63,7 +63,6 @@
 #include <asf.h>
 #include "BLE.h"
 #include "LSM9DS1.h"
-#include "ADC_PWM.h"
 #include "timer_hw.h"
 #include "button.h"
 #include "console_serial.h"
@@ -71,6 +70,7 @@
 #include <stdint.h>
 #include "LED.h"
 #include "cymote_selector.h"
+#include "ADC_GPIO.h"
 
 
 #define DATA_BUFFER_LENGTH 20
@@ -89,7 +89,7 @@ uint16_t accelerometer_data[3];
 uint16_t gyroscope_data[3];
 uint16_t magnetometer_data[3];
 uint16_t joystick_data[2];
-uint8_t buttons;
+uint16_t buttons;
 volatile uint64_t time_ms = 0;
 cymote_service_handler_t cymote_gatt_service_handle;
 
@@ -168,6 +168,11 @@ int main(void)
 	uint8_t len;
 
 	bool red, blue, green;
+	bool butt1_pin_state = false;
+	bool butt2_pin_state = false;
+	bool butt3_pin_state = false;
+	bool butt4_pin_state = false;
+	bool butt5_pin_state = false;
 
 	//if using Cymote Beta then set the gpio muxes
 	if(!ALPHA_CONNECTIONS){
@@ -283,9 +288,10 @@ int main(void)
 				get_raw_accelerometer(accelerometer_data);
 				get_raw_gyroscope(gyroscope_data);
 				get_raw_magnetometer(magnetometer_data);
-				joystick_data[0] = 42;
-				joystick_data[1] = 24;
-				buttons = 16;
+				joystick_data[0] = adc3_result;
+				joystick_data[1] = adc4_result;
+				buttons = 0; // reset
+				buttons = butt5_pin_state << 4 | butt4_pin_state << 3 | butt3_pin_state << 2 | butt2_pin_state << 1 | butt1_pin_state;
 			}
 			else{
 				//dummy data
@@ -339,7 +345,7 @@ int main(void)
 			//joystick and buttons
 			valueX = joystick_data[0];
 			valueY = joystick_data[1];
-			valueZ = (uint16_t) buttons;
+			valueZ = buttons;
 			len = prepare_send_buffer(temp, valueX, valueY, valueZ);
 			status = at_ble_characteristic_value_set(cymote_handles.joystick_buttons_handle, temp, len);
 			//DBG_LOG("status 4: %x", status);
@@ -353,13 +359,14 @@ int main(void)
 			//DBG_LOG("%s", temp);
 		}
 		 
-		bool butt1_pin_state = gpio_pin_get_input_level(EXT1_PIN_6);
-		bool butt2_pin_state = gpio_pin_get_input_level(EXT1_PIN_9);
-		bool butt3_pin_state = gpio_pin_get_input_level(EXT1_PIN_12);
-		bool butt4_pin_state = gpio_pin_get_input_level(EXT3_PIN_5);
+		butt1_pin_state = gpio_pin_get_input_level(BUTTON1);
+		butt2_pin_state = gpio_pin_get_input_level(BUTTON2);
+		butt3_pin_state = gpio_pin_get_input_level(BUTTON3);
+		butt4_pin_state = gpio_pin_get_input_level(BUTTON4);
+		butt5_pin_state = gpio_pin_get_input_level(BUTTON5);
 
 		if (butt1_pin_state){
-
+			//reset the adc
 			configure_adc_4();
 			configure_adc_3();
 
@@ -467,17 +474,11 @@ uint8_t prepare_send_buffer(uint8_t buffer[DATA_BUFFER_LENGTH], uint16_t data1, 
    Returns the length of good data in buffer.
 */
 uint8_t prepare_send_buffer_timer(uint8_t buffer[DATA_BUFFER_LENGTH], uint64_t data){
-	int i;
 	memset(buffer, NULL, DATA_BUFFER_LENGTH);
 
 	char temp[DATA_BUFFER_LENGTH];
 	uint8_t len = snprintf(temp, DATA_BUFFER_LENGTH, "%04x%04x%04x%04x", (uint16_t)(data>>48), (uint16_t)(data>>32), (uint16_t)(data>>16), (uint16_t)data);
-	//uint8_t len = 8;
-	//if(data & 0xFFFFFFFFFFFF0000LL)
-	//	/*uint8_t len = */snprintf(temp, DATA_BUFFER_LENGTH, "%ld", (int32_t)data);
-	//else
-	//	snprintf(temp, DATA_BUFFER_LENGTH, "Small data");
-	//DBG_LOG("len %d", len);
+	
 	memcpy(buffer, temp, len);
 	return len;
 }

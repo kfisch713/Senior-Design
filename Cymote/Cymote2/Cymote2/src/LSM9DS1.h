@@ -5,6 +5,7 @@
  *  Author: Michael
  */ 
 
+ #include "cymote_selector.h"
 
 #ifndef LSM9DS1_H_
 #define LSM9DS1_H_
